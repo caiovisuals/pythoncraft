@@ -4,11 +4,13 @@ import time
 
 app = Ursina()
 
-from game.player import PlayerController
+from game.core.player import PlayerController
+from game.core.world import create_test_world, world_parent
+from game.graphics.particles import spawn_particles
 from game.textures import load_all_textures
-from game.world import create_test_world, world_parent
 from game.items import load_all_items, get_item, ITEMS
 from game.entities import load_all_entities, ENTITIES
+from game.blocks import load_all_blocks, BLOCKS
 from game.textures import T_CROSS
 from game.inventory import Inventory, Hotbar
 from game.ui import build_main_menu, toggle_settings_panel, settings_panel, menu_panel
@@ -21,7 +23,6 @@ window.fps_counter.enabled = True
 
 cross = Sprite(parent=camera.ui, texture=T_CROSS, pixel_perfect=True, scale=0.02)
 
-player = None
 load_all_textures()
 load_all_items()
 load_all_entities()
@@ -29,7 +30,7 @@ inventory = Inventory()
 hotbar = Hotbar()
 build_main_menu()
 
-toggle_cooldown = 0
+player = None
 
 def start_game():
     global player
@@ -50,31 +51,23 @@ def input(key):
         if player:
             player.enabled = not settings_panel.enabled
 
-    if key == 'e':
-        if player:
-            inventory.toggle()
-            if inventory.visible:
-                player.enabled = False
-            else:
-                player.enabled = True  
-
     if key == 'r':
         menu_panel.enabled = True
         settings_panel.enabled = False
         mouse.locked = False
-        def cleanup_world():
-            children = world_parent.children[:]
-            batch_size = 50
-            for i in range(0, len(children), batch_size):
-                for c in children[i:i+batch_size]:
-                    destroy(c)
-                time.sleep(0.01)
-            if player:
-                destroy(player)
-                player = None
-            inventory.visible = False
-            inventory.enabled = False
-            hotbar.enabled = True
-        cleanup_world()
+
+        children = world_parent.children[:]
+        batch_size = 50
+        for i in range(0, len(children), batch_size):
+            for c in children[i:i+batch_size]:
+                destroy(c)
+            time.sleep(0.01)
+
+        if player:
+            destroy(player)
+            player = None
+
+    if player:
+        player.handle_input(key)
 
 app.run()
