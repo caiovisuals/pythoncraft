@@ -1,25 +1,19 @@
-from ursina import load_texture
+from textures import entities as entity_textures
 
 class EntityData:
-    def __init__(self, name, texture, type):
+    def __init__(self, name: str, texture, type: str):
         self.name = name
         self.texture = texture
         self.type = type
 
-
-def load_entity_texture(path):
-    return load_texture(f"assets/textures/entities/{path}")
-
-T_COW     = load_entity_texture("cow/cow.png")
-T_HORSE     = load_entity_texture("horse/horse.png")
-T_PIG     = load_entity_texture("pig/pig.png")
-T_SHEEP     = load_entity_texture("sheep/sheep.png")
-
 ANIMALS = {
-    "cow": EntityData("Cow", T_COW, "animals"),
-    "horse": EntityData("Horse", T_HORSE, "animals"),
-    "pig": EntityData("Pig", T_PIG, "animals"),
-    "sheep": EntityData("Sheep", T_SHEEP, "animals"),
+    "cow": EntityData("Cow", entity_textures["cow"], "animals"),
+    "horse_black": EntityData("Horse Black", entity_textures["horse_black"], "animals"),
+    "horse_brown": EntityData("Horse Brown", entity_textures["horse_brown"], "animals"),
+    "horse_chestnut": EntityData("Horse Chestnut", entity_textures["horse_chestnut"], "animals"),
+    "horse_creamy": EntityData("Horse Creamy", entity_textures["horse_creamy"], "animals"),
+    "pig": EntityData("Pig", entity_textures["pig"], "animals"),
+    "sheep": EntityData("Sheep", entity_textures["sheep"], "animals"),
 }
 
 ENTITIES = {}
@@ -27,4 +21,3 @@ ENTITIES = {}
 def load_all_entities():
     ENTITIES.clear()
     ENTITIES.update(ANIMALS)
-
