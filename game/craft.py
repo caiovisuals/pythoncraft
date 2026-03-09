@@ -1,7 +1,11 @@
 from game.textures import items
-from typing import List, Optional
+from typing import List, Optional, Dict, TypedDict
 
-RECIPES = {
+class Recipe(TypedDict):
+    pattern: List[List[Optional[str]]]
+    result: str
+
+RECIPES: Dict[str, Recipe] = {
     "diamond_sword": {
         "pattern": [
             [None, "diamond", None],
@@ -29,7 +33,7 @@ RECIPES = {
 }
 
 def check_craft(grid: List[List[Optional[str]]]) -> Optional[str]:
-    for recipe_name, recipe in RECIPES.items():
+    for recipe in RECIPES.items():
         pattern = recipe["pattern"]
         match = True
         for y in range(3):

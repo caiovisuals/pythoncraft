@@ -1,14 +1,16 @@
 from game.textures import blocks as BLOCK_TEXTURES
 
 BLOCK_TYPE_SOLID = "solid"
-BLOCK_TYPE_DECOR = "decor"
 BLOCK_TYPE_INTERACTIVE = "interactive"
+BLOCK_TYPE_LIQUID = "liquid"
 
 class Block:
-    def __init__(self, name: str, texture, block_type: str = BLOCK_TYPE_SOLID, **attributes):
+    def __init__(self, name: str, texture, block_type: str = BLOCK_TYPE_SOLID, hardness: float = 1, transparent: bool = False, **attributes):
         self.name = name
         self.texture = texture
         self.type = block_type
+        self.hardness = hardness
+        self.transparent = transparent
         self.attributes = attributes
 
     def __repr__(self):
@@ -51,8 +53,22 @@ def load_all_blocks():
         hardness=2
     ))
 
+    register_block("water", Block(
+        name="Àgua",
+        texture=BLOCK_TEXTURES["wood"],
+        block_type=BLOCK_TYPE_LIQUID,
+        transparent=True
+    ))
+
+    register_block("lava", Block(
+        name="Lava",
+        texture=BLOCK_TEXTURES["wood"],
+        block_type=BLOCK_TYPE_LIQUID
+    ))
+
     register_block("crafting_table", Block(
         name="Mesa de Trabalho",
         texture=BLOCK_TEXTURES["crafting_table_side"],
-        block_type=BLOCK_TYPE_INTERACTIVE
+        block_type=BLOCK_TYPE_INTERACTIVE,
+        hardness=2
     ))

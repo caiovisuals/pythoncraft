@@ -1,4 +1,5 @@
 from game.textures import items as TEXTURE_ITEMS
+from typing import Dict, Optional
 
 ITEM_TYPE_TOOL = "tool"
 ITEM_TYPE_FOOD = "food"
@@ -9,18 +10,20 @@ class Item:
         self.name = name
         self.texture = texture
         self.type = item_type
-        self.attributes = attributes
+        self.attributes = attributes or {}
 
     def __repr__(self):
         return f"<Item {self.name} ({self.type})>"
 
-ITEMS = {}
+ITEMS: Dict[str, Item] = {}
 
 def register_item(id: str, item: Item):
+    if id in ITEMS:
+        raise ValueError(f"Item '{id}' já registrado.")
     ITEMS[id] = item
 
-def get_item(id: str):
-    return ITEMS.get(id, None)
+def get_item(id: str) -> Optional[Item]:
+    return ITEMS.get(id)
 
 def load_all_items():
     register_item("apple", Item(
@@ -35,7 +38,7 @@ def load_all_items():
         texture=TEXTURE_ITEMS["stone_sword"],
         item_type=ITEM_TYPE_TOOL,
         damage=5,
-        durability=131
+        durability=140
     ))
 
     register_item("iron_sword", Item(
@@ -43,7 +46,7 @@ def load_all_items():
         texture=TEXTURE_ITEMS["iron_sword"],
         item_type=ITEM_TYPE_TOOL,
         damage=6,
-        durability=250
+        durability=350
     ))
 
     register_item("diamond_sword", Item(
@@ -51,7 +54,7 @@ def load_all_items():
         texture=TEXTURE_ITEMS["diamond_sword"],
         item_type=ITEM_TYPE_TOOL,
         damage=7,
-        durability=1561
+        durability=1560
     ))
 
     register_item("stick", Item(

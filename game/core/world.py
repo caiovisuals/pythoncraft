@@ -16,17 +16,22 @@ class Voxel(Button):
             collider='box'
         )
 
+def get_texture_for_height(y):
+    if y < 0:
+        return T_STONE
+    elif y == 0:
+        return T_DIRT
+    else:
+        return T_GRASS
+
 def create_test_world(size=8, height=4):
-    for c in world_parent.children[:]:
+    for c in list(world_parent.children):
         destroy(c)
 
     for x in range(-size, size):
         for z in range(-size, size):
             for y in range(-1, height):
-                if y < 0:
-                    tex = T_STONE
-                elif y == 0:
-                    tex = T_DIRT
-                else:
-                    tex = T_GRASS
+                
+                tex = get_texture_for_height(y)
+
                 Voxel(position=(x, y, z), texture=tex)

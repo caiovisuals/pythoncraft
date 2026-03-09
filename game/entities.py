@@ -7,7 +7,6 @@ ENTITY_TYPE_HOSTILE   = "hostile"
 ENTITY_HEALTH = {
     'cow': 10, 'pig': 10, 'sheep': 8, 'chicken': 4,
     'horse_black': 15, 'horse_brown': 15, 'horse_chestnut': 15, 'horse_creamy': 15,
-    'zombie': 20, 'skeleton': 20, 'creeper': 20, 'spider': 16,
 }
 
 class EntityData:
