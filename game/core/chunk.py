@@ -1,5 +1,5 @@
 from ursina import Entity
-from game.voxel import Voxel
+from game.core.voxel import Voxel
 
 CHUNK_SIZE = 16
 

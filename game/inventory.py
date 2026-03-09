@@ -78,6 +78,9 @@ class Inventory(Entity):
 
 
 class Hotbar(Entity):
+    SLOT_SIZE = 0.075
+    SLOT_GAP  = 0.005
+
     def __init__(self):
         super().__init__(parent=camera.ui)
 
@@ -105,3 +108,6 @@ class Hotbar(Entity):
     def update_selection(self):
         for i, slot in enumerate(self.slots):
             slot.color = color.azure if i == self.selected else color.white
+
+    def scroll(self, direction):
+        self.select((self.selected - direction) % 9)

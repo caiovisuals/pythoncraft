@@ -1,19 +1,19 @@
 from ursina import *
-import random
+from ursina.shaders import basic_lighting_shader
 import time
 
 app = Ursina()
 
 from game.core.player import PlayerController
-from game.core.world import create_test_world, world_parent
+from game.core.world import create_world, world_parent
 from game.graphics.particles import spawn_particles
 from game.textures import load_all_textures
-from game.items import load_all_items, get_item, ITEMS
-from game.entities import load_all_entities, ENTITIES
-from game.blocks import load_all_blocks, BLOCKS
+from game.items import load_all_items
+from game.entities import load_all_entities
+from game.blocks import load_all_blocks
 from game.textures import T_CROSS
 from game.inventory import Inventory, Hotbar
-from game.ui import build_main_menu, toggle_settings_panel, settings_panel, menu_panel
+import game.ui as ui
 
 window.title = 'pythoncraft - bycaiovisuals'
 window.borderless = False
@@ -26,19 +26,32 @@ load_all_items()
 load_all_entities()
 load_all_blocks()
 
-cross = Sprite(parent=camera.ui, texture=T_CROSS, pixel_perfect=True, scale=0.02)
+cross = Sprite(parent=camera.ui, texture=T_CROSS, pixel_perfect=True, scale=0.02, alpha_mode="blend")
+cross.enabled = False
+
 inventory = Inventory()
+inventory.enabled = False
+
 hotbar = Hotbar()
-build_main_menu()
+hotbar.enabled = False
 
 player = None
+toggle_cooldown = 0
 
 def start_game():
     global player
-    create_test_world(size=16, height=2)
+
+    create_world(size=16, height=2)
     player = PlayerController()
+
     mouse.locked = True
-    menu_panel.enabled = False
+    ui.menu_panel.enabled = False
+
+    cross.enabled = True
+    hotbar.enabled = True
+    inventory.enabled = True
+
+ui.build_main_menu(start_game)
 
 def input(key):
     global player, toggle_cooldown
@@ -46,15 +59,15 @@ def input(key):
         return
     toggle_cooldown = time.time()
     if key == 'escape':
-        if menu_panel.enabled:
+        if ui.menu_panel.enabled:
             return
-        toggle_settings_panel()
+        ui.toggle_settings_panel()
         if player:
-            player.enabled = not settings_panel.enabled
+            player.enabled = not ui.settings_panel.enabled
 
     if key == 'r':
-        menu_panel.enabled = True
-        settings_panel.enabled = False
+        ui.menu_panel.enabled = True
+        ui.settings_panel.enabled = False
         mouse.locked = False
 
         children = world_parent.children[:]

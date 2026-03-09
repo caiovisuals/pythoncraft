@@ -1,4 +1,4 @@
-from game.textures import blocks as BLOCK_TEXTURES
+from game import textures as tex_module
 
 BLOCK_TYPE_SOLID = "solid"
 BLOCK_TYPE_INTERACTIVE = "interactive"
@@ -27,48 +27,48 @@ def get_block(id: str):
 def load_all_blocks():
     register_block("grass", Block(
         name="Grama",
-        texture=BLOCK_TEXTURES["grass"],
+        texture=tex_module.blocks["grass"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=1
     ))
 
     register_block("dirt", Block(
         name="Terra",
-        texture=BLOCK_TEXTURES["dirt"],
+        texture=tex_module.blocks["dirt"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=1
     ))
 
     register_block("stone", Block(
         name="Pedra",
-        texture=BLOCK_TEXTURES["stone"],
+        texture=tex_module.blocks["stone"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=3
     ))
 
     register_block("wood", Block(
         name="Madeira",
-        texture=BLOCK_TEXTURES["wood"],
+        texture=tex_module.blocks["wood"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=2
     ))
 
     register_block("water", Block(
         name="Àgua",
-        texture=BLOCK_TEXTURES["wood"],
+        texture=tex_module.blocks["wood"],
         block_type=BLOCK_TYPE_LIQUID,
         transparent=True
     ))
 
     register_block("lava", Block(
         name="Lava",
-        texture=BLOCK_TEXTURES["wood"],
+        texture=tex_module.blocks["wood"],
         block_type=BLOCK_TYPE_LIQUID
     ))
 
     register_block("crafting_table", Block(
         name="Mesa de Trabalho",
-        texture=BLOCK_TEXTURES["crafting_table_side"],
+        texture=tex_module.blocks["crafting_table_side"],
         block_type=BLOCK_TYPE_INTERACTIVE,
         hardness=2
     ))

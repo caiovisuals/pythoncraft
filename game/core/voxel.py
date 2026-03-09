@@ -1,4 +1,5 @@
 from ursina import *
+from ursina.shaders import basic_lighting_shader
 from game.textures import blocks as BLOCK_TEXTURES
 from game.graphics.particles import spawn_particles
 
@@ -12,13 +13,14 @@ class Voxel(Button):
         super().__init__(
             parent=parent,
             position=position,
-            model='cube',
+            model="cube",
             origin_y=0.5,
             texture=texture,
             color=color.white,
             scale=1,
-            collider='box',
-            highlight_color=color.lime
+            collider="box",
+            highlight_color=color.lime,
+            shader=basic_lighting_shader
         )
         
         self.block_type = block_type
