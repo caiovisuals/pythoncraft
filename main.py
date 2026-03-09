@@ -21,11 +21,12 @@ window.fullscreen = False
 window.exit_button.visible = False
 window.fps_counter.enabled = True
 
-cross = Sprite(parent=camera.ui, texture=T_CROSS, pixel_perfect=True, scale=0.02)
-
 load_all_textures()
 load_all_items()
 load_all_entities()
+load_all_blocks()
+
+cross = Sprite(parent=camera.ui, texture=T_CROSS, pixel_perfect=True, scale=0.02)
 inventory = Inventory()
 hotbar = Hotbar()
 build_main_menu()
