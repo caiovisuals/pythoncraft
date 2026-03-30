@@ -109,5 +109,9 @@ class Hotbar(Entity):
         for i, slot in enumerate(self.slots):
             slot.color = color.azure if i == self.selected else color.white
 
+    def select(self, index):
+        self.selected = index
+        self.update_selection()
+
     def scroll(self, direction):
         self.select((self.selected - direction) % 9)

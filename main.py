@@ -75,7 +75,6 @@ def input(key):
         for i in range(0, len(children), batch_size):
             for c in children[i:i+batch_size]:
                 destroy(c)
-            time.sleep(0.01)
 
         if player:
             destroy(player)

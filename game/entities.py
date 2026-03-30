@@ -8,7 +8,6 @@ ENTITY_HEALTH = {
     "cow": 10, 
     "pig": 10, 
     "sheep": 8, 
-    "chicken": 4,
     "horse_black": 15, 
     "horse_brown": 15, 
     "horse_chestnut": 15, 

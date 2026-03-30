@@ -55,14 +55,14 @@ def load_all_blocks():
 
     register_block("water", Block(
         name="Àgua",
-        texture=tex_module.blocks["wood"],
+        texture=tex_module.blocks["water"],
         block_type=BLOCK_TYPE_LIQUID,
         transparent=True
     ))
 
     register_block("lava", Block(
         name="Lava",
-        texture=tex_module.blocks["wood"],
+        texture=tex_module.blocks["lava"],
         block_type=BLOCK_TYPE_LIQUID
     ))
 

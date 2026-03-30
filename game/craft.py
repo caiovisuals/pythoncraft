@@ -33,7 +33,7 @@ RECIPES: Dict[str, Recipe] = {
 }
 
 def check_craft(grid: List[List[Optional[str]]]) -> Optional[str]:
-    for recipe in RECIPES.items():
+    for name, recipe in RECIPES.items():
         pattern = recipe["pattern"]
         match = True
         for y in range(3):

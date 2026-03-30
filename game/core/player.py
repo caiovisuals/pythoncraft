@@ -55,6 +55,7 @@ class PlayerController(FirstPersonController):
         self.hunger = min(self.max_hunger, self.hunger + food_value)
 
     def update(self):
+        super().update()
         if time.time() - self.last_hunger_tick > self.hunger_decay_rate:
             self.hunger = max(0, self.hunger - 1)
             self.last_hunger_tick = time.time()
