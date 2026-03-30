@@ -3,9 +3,9 @@ from ursina import Entity, color, Vec3, random, destroy, sequence, Func, time
 class Particle(Entity):
     def __init__(self, position=(0,0,0), color=color.white, scale=0.1, velocity=(0,1,0), lifetime=1.0, gravity=False, **kwargs):
         super().__init__(
-            parent=kwargs.get('parent', None),
+            parent=kwargs.get("parent", None),
             position=position,
-            model='quad',  # simples quad para partícula
+            model="quad",  # simples quad para partícula
             color=color,
             scale=scale,
             billboard=True  # sempre de frente para a câmera

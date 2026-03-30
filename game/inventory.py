@@ -3,7 +3,7 @@ from ursina import *
 class InventorySlot(Button):
     def __init__(self, index, texture=None, amount=0, **kwargs):
         super().__init__(
-            model='quad',
+            model="quad",
             texture=texture,
             scale=(0.08, 0.08),
             color=color.white,
@@ -14,7 +14,7 @@ class InventorySlot(Button):
         self.item_texture = texture
       
         self.amount_text = Text(
-            text=str(amount) if amount > 1 else '',
+            text=str(amount) if amount > 1 else "",
             parent=self,
             scale=1,
             y=-0.03
@@ -24,13 +24,13 @@ class InventorySlot(Button):
         self.item_texture = texture
         self.texture = texture
         self.amount = amount
-        self.amount_text.text = str(amount) if amount > 1 else ''
+        self.amount_text.text = str(amount) if amount > 1 else ""
 
     def clear(self):
         self.item_texture = None
         self.texture = None
         self.amount = 0
-        self.amount_text.text = ''
+        self.amount_text.text = ""
 
 
 class Inventory(Entity):
@@ -39,7 +39,7 @@ class Inventory(Entity):
 
         self.bg = Entity(
             parent=self,
-            model='quad',
+            model="quad",
             color=color.rgba(0, 0, 0, 150),
             scale=(0.95, 0.45),
             y=-0.3,
@@ -85,7 +85,7 @@ class Hotbar(Entity):
         super().__init__(parent=camera.ui)
 
         self.bg = Entity(
-            model='quad',
+            model="quad",
             parent=self,
             color=color.rgba(0, 0, 0, 170),
             y=-0.45,

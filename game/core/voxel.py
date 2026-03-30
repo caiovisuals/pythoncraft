@@ -1,6 +1,7 @@
 from ursina import *
 from ursina.shaders import basic_lighting_shader
 from game.textures import blocks as BLOCK_TEXTURES
+from game.sounds import play_break_block, play_place_block
 from game.graphics.particles import spawn_particles
 
 class Voxel(Button):
@@ -30,11 +31,11 @@ class Voxel(Button):
         """Gerencia interação com o bloco"""
         if self.hovered:
             # Quebrar bloco (botão esquerdo)
-            if key == 'left mouse down':
+            if key == "left mouse down":
                 self.break_block()
             
             # Colocar bloco (botão direito)
-            elif key == 'right mouse down':
+            elif key == "right mouse down":
                 self.place_block()
     
     def break_block(self):
@@ -50,8 +51,7 @@ class Voxel(Button):
             gravity=True
         )
         
-        # Tocar som (você pode adicionar sons)
-        # Audio('break_sound.wav', pitch=random.uniform(0.9, 1.1))
+        play_break_block()
         
         destroy(self)
     
@@ -71,6 +71,8 @@ class Voxel(Button):
                 block_type=self.block_type,
                 parent=self.parent
             )
+
+        play_place_block()   
 
 class VoxelWorld(Entity):
     """Gerenciador do mundo de voxels"""

@@ -15,7 +15,7 @@ from game.textures import T_CROSS
 from game.inventory import Inventory, Hotbar
 import game.ui as ui
 
-window.title = 'pythoncraft - bycaiovisuals'
+window.title = "pythoncraft - bycaiovisuals"
 window.borderless = False
 window.fullscreen = False
 window.exit_button.visible = False
@@ -58,14 +58,14 @@ def input(key):
     if time.time() - toggle_cooldown < 0.1:
         return
     toggle_cooldown = time.time()
-    if key == 'escape':
+    if key == "escape":
         if ui.menu_panel.enabled:
             return
         ui.toggle_settings_panel()
         if player:
             player.enabled = not ui.settings_panel.enabled
 
-    if key == 'r':
+    if key == "r":
         ui.menu_panel.enabled = True
         ui.settings_panel.enabled = False
         mouse.locked = False
