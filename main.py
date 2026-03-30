@@ -41,7 +41,7 @@ toggle_cooldown = 0
 def start_game():
     global player
 
-    create_world(size=16, height=2)
+    create_world(size=16, max_height=8)
     player = PlayerController()
 
     mouse.locked = True

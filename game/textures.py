@@ -4,6 +4,7 @@ T_GRASS_SIDE = None
 T_GRASS_TOP = None
 T_DIRT  = None
 T_STONE = None
+T_COBBLESTONE = None
 T_WOOD  = None
 T_CRAFTING_TABLE_TOP = None
 T_CRAFTING_TABLE_SIDE = None
@@ -39,7 +40,7 @@ items = {}
 gui = {}
 
 def load_all_textures():
-    global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_STONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE
+    global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_STONE, T_COBBLESTONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE
     global T_COW, T_HORSE_BLACK, T_HORSE_BROWN, T_HORSE_CHESTNUT, T_HORSE_CREAMY, T_PIG, T_SHEEP, T_SHEEP_FUR, T_PLAYER
     global T_APPLE, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_WOODEN_SWORD, T_STICK
     global T_CROSS, T_HOTBAR, T_SELECTED_ITEM, T_HEART, T_PROTECTION, T_BLOCK_BACKGROUND, T_INVENTORY
@@ -50,6 +51,7 @@ def load_all_textures():
     T_GRASS_TOP = load_texture('assets/textures/blocks/grass_top.png')
     T_DIRT  = load_texture('assets/textures/blocks/dirt.png')
     T_STONE = load_texture('assets/textures/blocks/stone.png')
+    T_COBBLESTONE = load_texture('assets/textures/blocks/cobblestone.png')
     T_WOOD  = load_texture('assets/textures/blocks/wood.png')
     T_CRAFTING_TABLE_TOP = load_texture('assets/textures/blocks/crafting_table_top.png')
     T_CRAFTING_TABLE_SIDE  = load_texture('assets/textures/blocks/crafting_table_side.png')
@@ -59,6 +61,7 @@ def load_all_textures():
         "grass_top": T_GRASS_TOP,
         "dirt": T_DIRT,
         "stone": T_STONE,
+        "cobblestone": T_COBBLESTONE,
         "wood": T_WOOD,
         "crafting_table_top": T_CRAFTING_TABLE_TOP,
         "crafting_table_side": T_CRAFTING_TABLE_SIDE,
