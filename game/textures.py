@@ -1,6 +1,7 @@
 from ursina import load_texture
 
-T_GRASS = None
+T_GRASS_SIDE = None
+T_GRASS_TOP = None
 T_DIRT  = None
 T_STONE = None
 T_WOOD  = None
@@ -21,6 +22,7 @@ T_APPLE = None
 T_DIAMOND_SWORD = None
 T_IRON_SWORD = None
 T_STONE_SWORD = None
+T_WOODEN_SWORD = None
 T_STICK = None
 
 T_CROSS = None
@@ -37,14 +39,15 @@ items = {}
 gui = {}
 
 def load_all_textures():
-    global T_GRASS, T_DIRT, T_STONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE
+    global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_STONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE
     global T_COW, T_HORSE_BLACK, T_HORSE_BROWN, T_HORSE_CHESTNUT, T_HORSE_CREAMY, T_PIG, T_SHEEP, T_SHEEP_FUR, T_PLAYER
-    global T_APPLE, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_STICK
+    global T_APPLE, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_WOODEN_SWORD, T_STICK
     global T_CROSS, T_HOTBAR, T_SELECTED_ITEM, T_HEART, T_PROTECTION, T_BLOCK_BACKGROUND, T_INVENTORY
 
     global blocks, entities, items, gui
 
-    T_GRASS = load_texture('assets/textures/blocks/grass.png')
+    T_GRASS_SIDE = load_texture('assets/textures/blocks/grass_side.png')
+    T_GRASS_TOP = load_texture('assets/textures/blocks/grass_top.png')
     T_DIRT  = load_texture('assets/textures/blocks/dirt.png')
     T_STONE = load_texture('assets/textures/blocks/stone.png')
     T_WOOD  = load_texture('assets/textures/blocks/wood.png')
@@ -52,7 +55,8 @@ def load_all_textures():
     T_CRAFTING_TABLE_SIDE  = load_texture('assets/textures/blocks/crafting_table_side.png')
 
     blocks = {
-        "grass": T_GRASS,
+        "grass_side": T_GRASS_SIDE,
+        "grass_top": T_GRASS_TOP,
         "dirt": T_DIRT,
         "stone": T_STONE,
         "wood": T_WOOD,
@@ -86,6 +90,7 @@ def load_all_textures():
     T_DIAMOND_SWORD = load_texture('assets/textures/items/diamond_sword.png')
     T_IRON_SWORD = load_texture('assets/textures/items/iron_sword.png')
     T_STONE_SWORD = load_texture('assets/textures/items/stone_sword.png')
+    T_WOODEN_SWORD = load_texture('assets/textures/items/wooden_sword.png')
     T_STICK = load_texture('assets/textures/items/stick.png')
 
     items = {
@@ -93,6 +98,7 @@ def load_all_textures():
         "diamond_sword": T_DIAMOND_SWORD,
         "iron_sword": T_IRON_SWORD,
         "stone_sword": T_STONE_SWORD,
+        "wooden_sword": T_WOODEN_SWORD,
         "stick": T_STICK,
     }
 

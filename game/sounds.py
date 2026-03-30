@@ -6,12 +6,16 @@ import os
 def load_sound(filename):
     return os.path.join('assets', 'sounds', filename)
 
-BREAK_BLOCK_SOUND = load_sound("break_block.wav")
-PLACE_BLOCK_SOUND = load_sound("place_block.wav")
+BREAK_BLOCK_SOUND = load_sound("break_block.ogg")
+PLACE_BLOCK_SOUND = load_sound("place_block.ogg")
 
-STEP_SOUND = load_sound("step.wav")
-HIT_SOUND = load_sound("hit.wav")
-JUMP_SOUND = load_sound("jump.wav")
+STEP_SOUND = load_sound("step.ogg")
+HIT_SOUNDS = [
+    load_sound("hit1.ogg"),
+    load_sound("hit2.ogg"),
+    load_sound("hit3.ogg"),
+]
+JUMP_SOUND = load_sound("jump.ogg")
 
 def play_sound(sound_file, volume=1.0, pitch_range=(1.0, 1.0)):
     """
@@ -31,7 +35,8 @@ def play_step():
     play_sound(STEP_SOUND, volume=0.5, pitch_range=(0.9, 1.1))
 
 def play_hit():
-    play_sound(HIT_SOUND, volume=0.5, pitch_range=(0.9, 1.0))
+    sound = random.choice(HIT_SOUNDS)
+    play_sound(sound, volume=0.5, pitch_range=(0.9, 1.0))
 
 def play_jump():
     play_sound(JUMP_SOUND, volume=0.6, pitch_range=(0.95, 1.05))

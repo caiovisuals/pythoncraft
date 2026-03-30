@@ -27,7 +27,7 @@ def get_block(id: str):
 def load_all_blocks():
     register_block("grass", Block(
         name="Grama",
-        texture=tex_module.blocks["grass"],
+        texture=tex_module.blocks["grass_side"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=1
     ))
@@ -42,6 +42,13 @@ def load_all_blocks():
     register_block("stone", Block(
         name="Pedra",
         texture=tex_module.blocks["stone"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=3
+    ))
+
+    register_block("cobblestone", Block(
+        name="Pedregulho",
+        texture=tex_module.blocks["cobblestone"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=3
     ))
