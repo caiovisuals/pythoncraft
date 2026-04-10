@@ -57,6 +57,13 @@ def load_all_blocks():
         hardness=3
     ))
 
+    register_block("limestone", Block(
+        name="Calcário",
+        texture=tex_module.blocks["limestone"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=2.5
+    ))
+
     register_block("cobblestone", Block(
         name="Pedregulho",
         texture=tex_module.blocks["cobblestone"],

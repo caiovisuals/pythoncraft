@@ -41,8 +41,10 @@ toggle_cooldown = 0
 def start_game():
     global player
 
-    create_world(size=16, max_height=8)
+    surface_y = create_world(size=16, max_height=8)
     player = PlayerController()
+
+    player.position = Vec3(0, surface_y + 2, 0)
 
     mouse.locked = True
     ui.menu_panel.enabled = False
