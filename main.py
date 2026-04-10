@@ -12,8 +12,8 @@ from game.items import load_all_items
 from game.entities import load_all_entities
 from game.blocks import load_all_blocks
 from game.textures import T_CROSS
-from game.inventory import Inventory, Hotbar
 import game.ui as ui
+from game.inventory import Inventory, Hotbar
 
 window.title = "pythoncraft - bycaiovisuals"
 window.borderless = False
@@ -83,4 +83,5 @@ def input(key):
     if player:
         player.handle_input(key)
 
+app = Ursina()
 app.run()

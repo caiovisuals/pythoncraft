@@ -1,13 +1,14 @@
 from ursina import load_texture
 
-T_GRASS_SIDE = None
 T_GRASS_TOP = None
+T_GRASS_SIDE = None
 T_DIRT  = None
 T_STONE = None
 T_COBBLESTONE = None
 T_WOOD  = None
 T_CRAFTING_TABLE_TOP = None
 T_CRAFTING_TABLE_SIDE = None
+T_CRAFTING_TABLE_BOTTOM = None
 
 T_COW = None
 T_HORSE_BLACK = None
@@ -47,24 +48,26 @@ def load_all_textures():
 
     global blocks, entities, items, gui
 
-    T_GRASS_SIDE = load_texture('assets/textures/blocks/grass_side.png')
     T_GRASS_TOP = load_texture('assets/textures/blocks/grass_top.png')
+    T_GRASS_SIDE = load_texture('assets/textures/blocks/grass_side.png')
     T_DIRT  = load_texture('assets/textures/blocks/dirt.png')
     T_STONE = load_texture('assets/textures/blocks/stone.png')
     T_COBBLESTONE = load_texture('assets/textures/blocks/cobblestone.png')
     T_WOOD  = load_texture('assets/textures/blocks/wood.png')
     T_CRAFTING_TABLE_TOP = load_texture('assets/textures/blocks/crafting_table_top.png')
     T_CRAFTING_TABLE_SIDE  = load_texture('assets/textures/blocks/crafting_table_side.png')
+    T_CRAFTING_TABLE_BOTTOM = load_texture('assets/textures/blocks/crafting_table_bottom.png')
 
     blocks = {
-        "grass_side": T_GRASS_SIDE,
         "grass_top": T_GRASS_TOP,
+        "grass_side": T_GRASS_SIDE,
         "dirt": T_DIRT,
         "stone": T_STONE,
         "cobblestone": T_COBBLESTONE,
         "wood": T_WOOD,
         "crafting_table_top": T_CRAFTING_TABLE_TOP,
         "crafting_table_side": T_CRAFTING_TABLE_SIDE,
+        "crafting_table_bottom": T_CRAFTING_TABLE_BOTTOM,
     }
 
     T_COW = load_texture('assets/textures/entities/cow/cow.png')

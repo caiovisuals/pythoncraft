@@ -5,9 +5,16 @@ BLOCK_TYPE_INTERACTIVE = "interactive"
 BLOCK_TYPE_LIQUID = "liquid"
 
 class Block:
-    def __init__(self, name: str, texture, block_type: str = BLOCK_TYPE_SOLID, hardness: float = 1, transparent: bool = False, **attributes):
+    def __init__(self, name: str, texture=None, textures: dict = None, block_type: str = BLOCK_TYPE_SOLID, hardness: float = 1, transparent: bool = False, **attributes):
         self.name = name
-        self.texture = texture
+        if textures:
+            self.textures = textures
+        else:
+            self.textures = {
+                "top": texture,
+                "bottom": texture,
+                "side": texture
+            }
         self.type = block_type
         self.hardness = hardness
         self.transparent = transparent
@@ -27,7 +34,11 @@ def get_block(id: str):
 def load_all_blocks():
     register_block("grass", Block(
         name="Grama",
-        texture=tex_module.blocks["grass_side"],
+        textures={
+            "top": tex_module.blocks["grass_top"],
+            "bottom": tex_module.blocks["dirt"],
+            "side": tex_module.blocks["grass_side"]
+        },
         block_type=BLOCK_TYPE_SOLID,
         hardness=1
     ))
@@ -75,7 +86,11 @@ def load_all_blocks():
 
     register_block("crafting_table", Block(
         name="Mesa de Trabalho",
-        texture=tex_module.blocks["crafting_table_side"],
+        textures={
+            "top": tex_module.blocks["crafting_table_top"],
+            "bottom": tex_module.blocks["crafting_table_bottom"],
+            "side": tex_module.blocks["crafting_table_side"]
+        },
         block_type=BLOCK_TYPE_INTERACTIVE,
         hardness=2
     ))

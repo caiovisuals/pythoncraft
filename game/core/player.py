@@ -10,6 +10,8 @@ class PlayerController(FirstPersonController):
         self.speed = 5
         self.jump_height = 1.5
 
+        self.mouse_sensitivity = [55, 55]
+
         self.max_health = 20
         self.health = self.max_health
 

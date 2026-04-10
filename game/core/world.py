@@ -1,14 +1,27 @@
 from ursina import *
-from game.textures import T_GRASS_SIDE, T_DIRT, T_STONE
+from game.blocks import get_block
 from perlin_noise import PerlinNoise
 
+CHUNK_SIZE = 16
 world_parent = Entity()
 placed_blocks = {}
 
 noise = PerlinNoise(octaves=4)
 
-class Voxel(Button):
-    def __init__(self, position=(0,0,0), texture=T_GRASS_SIDE):
+class Chunk(Entity):
+    def __init__(self, cx, cz, parent):
+        super().__init__(parent=parent)
+        self.cx = cx
+        self.cz = cz
+        self.build()
+
+class Voxel(Entity):
+    def __init__(self, position=(0,0,0), block=None):
+        if block is None:
+            raise ValueError("Um bloco válido deve ser fornecido")
+        
+        texture = block.textures.get("side", None)
+
         super().__init__(
             parent=world_parent,
             position=position,
@@ -20,18 +33,19 @@ class Voxel(Button):
             collider="box"
         )
 
-def get_texture_for_height(y):
-    if y < 0:
-        return T_STONE
-    elif y == 0:
-        return T_DIRT
-    else:
-        return T_GRASS_SIDE
-
 def get_height(x, z, scale=20, amplitude=6):
     value = noise([x / scale, z / scale])
     normalized = (value + 1) / 2
     return int(normalized * amplitude)
+
+def select_block_for_height(y, height):
+    """Retorna o ID do bloco apropriado para cada camada"""
+    if y == height:
+        return get_block("grass")
+    elif y > height - 3:
+        return get_block("dirt")
+    else:
+        return get_block("stone")
 
 def create_world(size=16, max_height=8):
     global placed_blocks
@@ -42,17 +56,9 @@ def create_world(size=16, max_height=8):
 
     for x in range(-size, size):
         for z in range(-size, size):
-
             height = get_height(x, z)
 
             for y in range(-2, height + 1):
-
-                # Escolher textura baseada na altura
-                if y == height:
-                    tex = T_GRASS_SIDE
-                elif y > height - 3:
-                    tex = T_DIRT
-                else:
-                    tex = T_STONE
-
-                Voxel(position=(x, y, z), texture=tex)
+                block = select_block_for_height(y, height)
+                voxel = Voxel(position=(x, y, z), block=block)
+                placed_blocks[(x, y, z)] = voxel
