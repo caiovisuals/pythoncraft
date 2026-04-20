@@ -8,7 +8,6 @@ def load_sound(filename):
 
 BREAK_BLOCK_SOUND = load_sound("break_block.ogg")
 PLACE_BLOCK_SOUND = load_sound("place_block.ogg")
-
 STEP_SOUND = load_sound("step.ogg")
 HIT_SOUNDS = [
     load_sound("hit1.ogg"),

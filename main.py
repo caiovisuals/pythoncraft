@@ -5,15 +5,16 @@ import time
 app = Ursina()
 
 from game.core.player import PlayerController
+from game.core.player import Inventory
+from game.core.player import Hotbar
 from game.core.world import create_world, world_parent
 from game.graphics.particles import spawn_particles
 from game.textures import load_all_textures
 from game.items import load_all_items
 from game.entities import load_all_entities
 from game.blocks import load_all_blocks
-from game.textures import T_CROSS
+import game.textures as textures
 import game.ui as ui
-from game.inventory import Inventory, Hotbar
 
 window.title = "pythoncraft - bycaiovisuals"
 window.borderless = False
@@ -26,13 +27,21 @@ load_all_items()
 load_all_entities()
 load_all_blocks()
 
-cross = Sprite(parent=camera.ui, texture=T_CROSS, pixel_perfect=True, scale=0.02, alpha_mode="blend")
+cross = Sprite(
+    parent=camera.ui, 
+    texture=textures.T_CROSS,
+    pixel_perfect=True, 
+    scale=0.25, 
+    color=color.white,
+    double_sided=True
+)
 cross.enabled = False
+cross.alpha = 1
 
 inventory = Inventory()
-inventory.enabled = False
-
 hotbar = Hotbar()
+
+inventory.enabled = False
 hotbar.enabled = False
 
 player = None
@@ -44,7 +53,7 @@ def start_game():
     surface_y = create_world(size=16, max_height=8)
     player = PlayerController()
 
-    player.position = Vec3(0, surface_y + 2, 0)
+    player.position = Vec3(0, surface_y + 3, 0)
 
     mouse.locked = True
     ui.menu_panel.enabled = False
@@ -85,5 +94,4 @@ def input(key):
     if player:
         player.handle_input(key)
 
-app = Ursina()
 app.run()

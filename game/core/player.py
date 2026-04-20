@@ -1,7 +1,37 @@
+from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from game.inventory import Inventory, Hotbar
+import game.textures as textures
 from ursina import mouse
 import time
+
+def uv_rect(x, y, w, h, tex_w=64, tex_h=64):
+    return [
+        (x/tex_w, 1 - y/tex_h),
+        ((x+w)/tex_w, 1 - y/tex_h),
+        ((x+w)/tex_w, 1 - (y+h)/tex_h),
+        (x/tex_w, 1 - (y+h)/tex_h),
+    ]
+class PlayerModel(Entity):
+    def __init__(self, texture):
+        super().__init__()
+
+class FirstPersonArm(Entity):
+    def __init__(self, texture):
+        arm_uv = [
+            uv_rect(44,20,4,12),
+            uv_rect(52,20,4,12),
+            uv_rect(40,20,4,12),
+            uv_rect(48,20,4,12),
+            uv_rect(44,16,4,4),
+            uv_rect(48,16,4,4),
+        ]
+
+        self.arm.parent = self
+
+        self.arm.scale = (0.3,0.8,0.3)
+        self.arm.position = (0.6,-0.6,1)
+        self.arm.rotation = (20,0,0)
 
 class PlayerController(FirstPersonController):
     def __init__(self, **kwargs):
@@ -25,7 +55,7 @@ class PlayerController(FirstPersonController):
         self.inventory_enabled = False
 
         self.last_toggle_time = 0
-        self.toggle_delay  = 0
+        self.toggle_delay  = 0.2
 
     def toggle_inventory(self):
         """Abre ou fecha o inventário"""

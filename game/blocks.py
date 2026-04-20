@@ -80,15 +80,56 @@ def load_all_blocks():
 
     register_block("water", Block(
         name="Àgua",
-        texture=tex_module.blocks["wood"],
+        texture=tex_module.blocks["water"],
         block_type=BLOCK_TYPE_LIQUID,
         transparent=True
     ))
 
     register_block("lava", Block(
         name="Lava",
-        texture=tex_module.blocks["wood"],
+        texture=tex_module.blocks["lava"],
         block_type=BLOCK_TYPE_LIQUID
+    ))
+
+    register_block("petroleum", Block(
+        name="Petróleo",
+        texture=tex_module.blocks["petroleum"],
+        block_type=BLOCK_TYPE_LIQUID
+    ))
+
+    register_block("oak_leaves", Block(
+        name="Folhas de Carvalho",
+        texture=tex_module.blocks["oak_leaves"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=1
+    ))
+
+    register_block("ice", Block(
+        name="Gelo",
+        texture=tex_module.blocks["ice"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=2
+    ))
+    
+    register_block("deepslate", Block(
+        name="Ardósia Profunda",
+        texture=tex_module.blocks["deepslate"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=2
+    ))
+
+    register_block("obsidian", Block(
+        name="Obsidiana",
+        texture=tex_module.blocks["obsidian"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=8
+    ))
+
+    register_block("glass", Block(
+        name="Vidro",
+        texture=tex_module.blocks["glass"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=1.5
     ))
 
     register_block("crafting_table", Block(

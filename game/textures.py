@@ -1,5 +1,8 @@
 from ursina import load_texture
 
+T_PLAYER = None
+T_PLAYER_FEMININE = None
+
 T_GRASS_TOP = None
 T_GRASS_SIDE = None
 T_DIRT  = None
@@ -10,6 +13,8 @@ T_WOOD  = None
 T_CRAFTING_TABLE_TOP = None
 T_CRAFTING_TABLE_SIDE = None
 T_CRAFTING_TABLE_BOTTOM = None
+T_GLASS = None
+T_OBSIDIAN = None
 
 T_COW = None
 T_HORSE_BLACK = None
@@ -17,6 +22,8 @@ T_HORSE_BROWN = None
 T_HORSE_CHESTNUT = None
 T_HORSE_CREAMY = None
 T_PIG = None
+T_PALE_PIG = None
+T_SPOTTED_PIG = None
 T_SHEEP = None
 T_SHEEP_FUR = None
 T_PLAYER = None
@@ -36,18 +43,28 @@ T_PROTECTION = None
 T_BLOCK_BACKGROUND = None
 T_INVENTORY = None
 
+player = {}
 blocks = {}
 entities = {}
 items = {}
 gui = {}
 
 def load_all_textures():
-    global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_STONE, T_LIMESTONE, T_COBBLESTONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE
-    global T_COW, T_HORSE_BLACK, T_HORSE_BROWN, T_HORSE_CHESTNUT, T_HORSE_CREAMY, T_PIG, T_SHEEP, T_SHEEP_FUR, T_PLAYER
+    global T_PLAYER, T_PLAYER_FEMININE
+    global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_STONE, T_LIMESTONE, T_COBBLESTONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE, T_GLASS, T_OBSIDIAN
+    global T_COW, T_HORSE_BLACK, T_HORSE_BROWN, T_HORSE_CHESTNUT, T_HORSE_CREAMY, T_PIG, T_PALE_PIG, T_SPOTTED_PIG, T_SHEEP, T_SHEEP_FUR, T_PLAYER
     global T_APPLE, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_WOODEN_SWORD, T_STICK
     global T_CROSS, T_HOTBAR, T_SELECTED_ITEM, T_HEART, T_PROTECTION, T_BLOCK_BACKGROUND, T_INVENTORY
 
-    global blocks, entities, items, gui
+    global player, blocks, entities, items, gui
+
+    T_PLAYER = load_texture('assets/textures/entities/player/player_male.png')
+    T_PLAYER_FEMININE = load_texture('assets/textures/entities/player/player_feminine.png')
+
+    player = {
+        "player": T_PLAYER,
+        "player_feminine": T_PLAYER_FEMININE,
+    }
 
     T_GRASS_TOP = load_texture('assets/textures/blocks/grass_top.png')
     T_GRASS_SIDE = load_texture('assets/textures/blocks/grass_side.png')
@@ -59,6 +76,8 @@ def load_all_textures():
     T_CRAFTING_TABLE_TOP = load_texture('assets/textures/blocks/crafting_table_top.png')
     T_CRAFTING_TABLE_SIDE  = load_texture('assets/textures/blocks/crafting_table_side.png')
     T_CRAFTING_TABLE_BOTTOM = load_texture('assets/textures/blocks/crafting_table_bottom.png')
+    T_GLASS = load_texture('assets/textures/blocks/glass.png')
+    T_OBSIDIAN = load_texture('assets/textures/blocks/obsidian.png')
 
     blocks = {
         "grass_top": T_GRASS_TOP,
@@ -71,6 +90,8 @@ def load_all_textures():
         "crafting_table_top": T_CRAFTING_TABLE_TOP,
         "crafting_table_side": T_CRAFTING_TABLE_SIDE,
         "crafting_table_bottom": T_CRAFTING_TABLE_BOTTOM,
+        "glass": T_GLASS,
+        "obsidian": T_OBSIDIAN,
     }
 
     T_COW = load_texture('assets/textures/entities/cow/cow.png')
@@ -79,6 +100,8 @@ def load_all_textures():
     T_HORSE_CHESTNUT = load_texture('assets/textures/entities/horse/horse_chestnut.png')
     T_HORSE_CREAMY = load_texture('assets/textures/entities/horse/horse_creamy.png')
     T_PIG = load_texture('assets/textures/entities/pig/pig.png')
+    T_PALE_PIG = load_texture('assets/textures/entities/pig/pale_pig.png')
+    T_SPOTTED_PIG = load_texture('assets/textures/entities/pig/spotted_pig.png')
     T_SHEEP  = load_texture('assets/textures/entities/sheep/sheep.png')
     T_SHEEP_FUR  = load_texture('assets/textures/entities/sheep/sheep_fur.png')
     T_PLAYER = load_texture('assets/textures/entities/player.png')
@@ -90,6 +113,8 @@ def load_all_textures():
         "horse_chestnut": T_HORSE_CHESTNUT,
         "horse_creamy": T_HORSE_CREAMY,
         "pig": T_PIG,
+        "pale_pig": T_PALE_PIG,
+        "spotted_pig": T_SPOTTED_PIG,
         "sheep": T_SHEEP,
         "sheep_fur": T_SHEEP_FUR,
         "player": T_PLAYER,

@@ -6,7 +6,7 @@ from perlin_noise import PerlinNoise
 # Configurações
 # ---------------------------------------------------------------------------
 CHUNK_SIZE  = 16   # blocos por chunk (X e Z)
-RENDER_DIST = 2    # chunks visíveis em cada direção a partir do jogador
+RENDER_DIST = 4    # chunks visíveis em cada direção a partir do jogador
 
 noise = PerlinNoise(octaves=4)
 
@@ -54,27 +54,27 @@ _FACES = [
     ]),
     ("front",  ( 0,  0,  1), [
         Vec3(-_HALF, -_HALF,  _HALF),
-        Vec3( _HALF, -_HALF,  _HALF),
-        Vec3( _HALF,  _HALF,  _HALF),
         Vec3(-_HALF,  _HALF,  _HALF),
+        Vec3( _HALF,  _HALF,  _HALF),
+        Vec3( _HALF, -_HALF,  _HALF),
     ]),
     ("back",   ( 0,  0, -1), [
         Vec3( _HALF, -_HALF, -_HALF),
-        Vec3(-_HALF, -_HALF, -_HALF),
-        Vec3(-_HALF,  _HALF, -_HALF),
         Vec3( _HALF,  _HALF, -_HALF),
+        Vec3(-_HALF,  _HALF, -_HALF),
+        Vec3(-_HALF, -_HALF, -_HALF),
     ]),
     ("right",  ( 1,  0,  0), [
         Vec3( _HALF, -_HALF,  _HALF),
-        Vec3( _HALF, -_HALF, -_HALF),
-        Vec3( _HALF,  _HALF, -_HALF),
         Vec3( _HALF,  _HALF,  _HALF),
+        Vec3( _HALF,  _HALF, -_HALF),
+        Vec3( _HALF, -_HALF, -_HALF),
     ]),
     ("left",   (-1,  0,  0), [
         Vec3(-_HALF, -_HALF, -_HALF),
-        Vec3(-_HALF, -_HALF,  _HALF),
-        Vec3(-_HALF,  _HALF,  _HALF),
         Vec3(-_HALF,  _HALF, -_HALF),
+        Vec3(-_HALF,  _HALF,  _HALF),
+        Vec3(-_HALF, -_HALF,  _HALF),
     ]),
 ]
 
@@ -280,3 +280,4 @@ def rebuild_chunk_at(world_pos: tuple):
     if key in _chunk_entities:
         destroy(_chunk_entities[key])
     _chunk_entities[key] = _build_chunk_mesh(cx, cz)
+    _spawn_surface_colliders()

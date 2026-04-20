@@ -6,8 +6,13 @@ ENTITY_TYPE_HOSTILE   = "hostile"
 
 ENTITY_HEALTH = {
     "cow": 10, 
+
     "pig": 10, 
+    "pale_pig": 10, 
+    "spotted_pig": 10,
+
     "sheep": 8, 
+    
     "horse_black": 15, 
     "horse_brown": 15, 
     "horse_chestnut": 15, 
@@ -28,11 +33,16 @@ class EntityData:
 
 ANIMALS = {
     "cow": EntityData("Cow", "cow", ENTITY_TYPE_PASSIVE, speed=0.6),
+
     "horse_black": EntityData("Horse Black", "horse_black", ENTITY_TYPE_PASSIVE, speed=0.8),
     "horse_brown": EntityData("Horse Brown", "horse_brown", ENTITY_TYPE_PASSIVE, speed=0.8),
     "horse_chestnut": EntityData("Horse Chestnut", "horse_chestnut", ENTITY_TYPE_PASSIVE, speed=0.8),
     "horse_creamy": EntityData("Horse Creamy", "horse_creamy", ENTITY_TYPE_PASSIVE, speed=0.8),
+
     "pig": EntityData("Pig", "pig", ENTITY_TYPE_PASSIVE, speed=0.6),
+    "pale_pig": EntityData("Pig", "pale_pig", ENTITY_TYPE_PASSIVE, speed=0.6),
+    "spotted_pig": EntityData("Pig", "spotted_pig", ENTITY_TYPE_PASSIVE, speed=0.6),
+
     "sheep": EntityData("Sheep", "sheep", ENTITY_TYPE_PASSIVE, speed=0.4),
 }
 
