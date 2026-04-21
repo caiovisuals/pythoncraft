@@ -6,6 +6,22 @@ class Recipe(TypedDict):
     result: str
 
 RECIPES: Dict[str, Recipe] = {
+    "crafting_table": {
+        "pattern": [
+            [None, "wood", None],
+            [None, "wood", None],
+            [None, "wood", None],
+            [None, "wood", None],
+        ],
+        "result": "crafting_table",
+    },
+    "stick": {
+        "pattern": [
+            [None, "wood", None],
+            [None, "wood", None],
+        ],
+        "result": "stick",
+    },
     "diamond_sword": {
         "pattern": [
             [None, "diamond", None],

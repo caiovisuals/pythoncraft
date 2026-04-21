@@ -12,6 +12,7 @@ ENTITY_HEALTH = {
     "spotted_pig": 10,
 
     "sheep": 8, 
+    "chicken": 4,
     
     "horse_black": 15, 
     "horse_brown": 15, 
@@ -32,18 +33,19 @@ class EntityData:
         return f"<Entity {self.name} | HP:{self.health} | Speed:{self.speed}>"
 
 ANIMALS = {
-    "cow": EntityData("Cow", "cow", ENTITY_TYPE_PASSIVE, speed=0.6),
+    "cow": EntityData("Vaca", "cow", ENTITY_TYPE_PASSIVE, speed=0.6),
 
-    "horse_black": EntityData("Horse Black", "horse_black", ENTITY_TYPE_PASSIVE, speed=0.8),
-    "horse_brown": EntityData("Horse Brown", "horse_brown", ENTITY_TYPE_PASSIVE, speed=0.8),
-    "horse_chestnut": EntityData("Horse Chestnut", "horse_chestnut", ENTITY_TYPE_PASSIVE, speed=0.8),
-    "horse_creamy": EntityData("Horse Creamy", "horse_creamy", ENTITY_TYPE_PASSIVE, speed=0.8),
+    "horse_black": EntityData("Cavalo Preto", "horse_black", ENTITY_TYPE_PASSIVE, speed=0.8),
+    "horse_brown": EntityData("Cavalo Marrom", "horse_brown", ENTITY_TYPE_PASSIVE, speed=0.8),
+    "horse_chestnut": EntityData("Cavalo Caramelo", "horse_chestnut", ENTITY_TYPE_PASSIVE, speed=0.8),
+    "horse_creamy": EntityData("Cavalo Leitoso", "horse_creamy", ENTITY_TYPE_PASSIVE, speed=0.8),
 
-    "pig": EntityData("Pig", "pig", ENTITY_TYPE_PASSIVE, speed=0.6),
-    "pale_pig": EntityData("Pig", "pale_pig", ENTITY_TYPE_PASSIVE, speed=0.6),
-    "spotted_pig": EntityData("Pig", "spotted_pig", ENTITY_TYPE_PASSIVE, speed=0.6),
+    "pig": EntityData("Porco", "pig", ENTITY_TYPE_PASSIVE, speed=0.6),
+    "pale_pig": EntityData("Porco Pálido", "pale_pig", ENTITY_TYPE_PASSIVE, speed=0.6),
+    "spotted_pig": EntityData("Porco Manchado", "spotted_pig", ENTITY_TYPE_PASSIVE, speed=0.6),
 
-    "sheep": EntityData("Sheep", "sheep", ENTITY_TYPE_PASSIVE, speed=0.4),
+    "sheep": EntityData("Ovelha", "sheep", ENTITY_TYPE_PASSIVE, speed=0.4),
+    "chicken": EntityData("Galinha", "chicken", ENTITY_TYPE_PASSIVE, speed=0.5),
 }
 
 ENTITIES: dict[str, EntityData] = {}

@@ -4,6 +4,7 @@ from typing import Dict, Optional
 ITEM_TYPE_TOOL = "tool"
 ITEM_TYPE_FOOD = "food"
 ITEM_TYPE_BLOCK = "block"
+ITEM_TYPE_UTILITY = "utility"
 
 class Item:
     def __init__(self, name: str, texture: str, item_type: str, **attributes):
@@ -31,6 +32,45 @@ def load_all_items():
         texture=tex_module.items["apple"],
         item_type=ITEM_TYPE_FOOD,
         hunger=4,
+    ))
+
+    register_item("carrot", Item(
+        name="Cenoura",
+        texture=tex_module.items["carrot"],
+        item_type=ITEM_TYPE_FOOD,
+        hunger=4,
+    ))
+
+    register_item("porkchop", Item(
+        name="Costeleta de Porco",
+        texture=tex_module.items["porkchop"],
+        item_type=ITEM_TYPE_FOOD,
+        hunger=7,
+    ))
+
+    register_item("bread", Item(
+        name="Pão",
+        texture=tex_module.items["bread"],
+        item_type=ITEM_TYPE_FOOD,
+        hunger=5,
+    ))
+
+    register_item("book", Item(
+        name="Livro",
+        texture=tex_module.items["book"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("wheat_seeds", Item(
+        name="Sementes de Trigo",
+        texture=tex_module.items["wheat_seeds"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("wheat", Item(
+        name="Trigo",
+        texture=tex_module.items["wheat"],
+        item_type=ITEM_TYPE_UTILITY,
     ))
 
     register_item("stone_sword", Item(
