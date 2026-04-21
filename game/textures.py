@@ -36,6 +36,12 @@ T_CHICKEN = None
 T_PLAYER = None
 
 T_APPLE = None
+T_CARROT = None
+T_PORKCHOP = None
+T_BREAD = None
+T_BOOK = None
+T_WHEAT_SEEDS = None
+T_WHEAT = None
 T_DIAMOND_SWORD = None
 T_IRON_SWORD = None
 T_STONE_SWORD = None
@@ -61,7 +67,7 @@ def load_all_textures():
     global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_STONE, T_LIMESTONE, T_COBBLESTONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE, T_GLASS, T_OBSIDIAN, T_OAK_LEAVES, T_ICE, T_DEEPSLATE
     global T_WATER, T_LAVA, T_PETROLEUM
     global T_COW, T_HORSE_BLACK, T_HORSE_BROWN, T_HORSE_CHESTNUT, T_HORSE_CREAMY, T_PIG, T_PALE_PIG, T_SPOTTED_PIG, T_SHEEP, T_SHEEP_FUR, T_PLAYER
-    global T_APPLE, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_WOODEN_SWORD, T_STICK
+    global T_APPLE, T_CARROT, T_PORKCHOP, T_BREAD, T_BOOK, T_WHEAT_SEEDS, T_WHEAT, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_WOODEN_SWORD, T_STICK
     global T_CROSS, T_HOTBAR, T_SELECTED_ITEM, T_HEART, T_PROTECTION, T_BLOCK_BACKGROUND, T_INVENTORY
 
     global player, blocks, entities, items, gui
@@ -143,6 +149,12 @@ def load_all_textures():
     }
 
     T_APPLE = load_texture('assets/textures/items/apple.png')
+    T_CARROT = load_texture('assets/textures/items/carrot.png')
+    T_PORKCHOP = load_texture('assets/textures/items/porkchop.png')
+    T_BREAD = load_texture('assets/textures/items/bread.png')
+    T_BOOK = load_texture('assets/textures/items/book.png')
+    T_WHEAT_SEEDS = load_texture('assets/textures/items/wheat_seeds.png')
+    T_WHEAT = load_texture('assets/textures/items/wheat.png')
     T_DIAMOND_SWORD = load_texture('assets/textures/items/diamond_sword.png')
     T_IRON_SWORD = load_texture('assets/textures/items/iron_sword.png')
     T_STONE_SWORD = load_texture('assets/textures/items/stone_sword.png')
@@ -151,6 +163,12 @@ def load_all_textures():
 
     items = {
         "apple": T_APPLE,
+        "carrot": T_CARROT,
+        "porkchop": T_PORKCHOP,
+        "bread": T_BREAD,
+        "book": T_BOOK,
+        "wheat_seeds": T_WHEAT_SEEDS,
+        "wheat": T_WHEAT,
         "diamond_sword": T_DIAMOND_SWORD,
         "iron_sword": T_IRON_SWORD,
         "stone_sword": T_STONE_SWORD,

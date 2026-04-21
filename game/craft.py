@@ -8,10 +8,9 @@ class Recipe(TypedDict):
 RECIPES: Dict[str, Recipe] = {
     "crafting_table": {
         "pattern": [
-            [None, "wood", None],
-            [None, "wood", None],
-            [None, "wood", None],
-            [None, "wood", None],
+            ["wood", "wood", None],
+            ["wood", "wood", None],
+            [None,   None,   None],
         ],
         "result": "crafting_table",
     },
@@ -19,6 +18,7 @@ RECIPES: Dict[str, Recipe] = {
         "pattern": [
             [None, "wood", None],
             [None, "wood", None],
+            [None, None,   None],
         ],
         "result": "stick",
     },

@@ -270,6 +270,34 @@ def create_world(size: int = 16, max_height: int = 8):
     
     return get_height(0, 0)
 
+def break_block(pos: tuple) -> bool:
+    """
+    Remove o bloco na posição (x, y, z) do mundo.
+    Reconstrói o chunk afetado. Retorna True se o bloco existia.
+    """
+    x, y, z = int(pos[0]), int(pos[1]), int(pos[2])
+    key = (x, y, z)
+    if key not in placed_blocks:
+        return False
+    del placed_blocks[key]
+    rebuild_chunk_at((x, y, z))
+    return True
+ 
+ 
+def place_block(pos: tuple, block_id: str) -> bool:
+    """
+    Coloca um bloco na posição (x, y, z) do mundo.
+    Reconstrói o chunk afetado. Retorna True se a posição estava vazia.
+    """
+    x, y, z = int(pos[0]), int(pos[1]), int(pos[2])
+    key = (x, y, z)
+    if key in placed_blocks:
+        return False
+    if get_block(block_id) is None:
+        return False
+    placed_blocks[key] = block_id
+    rebuild_chunk_at((x, y, z))
+    return True
 
 def rebuild_chunk_at(world_pos: tuple):
     """Reconstrói o chunk que contém a posição (x, y, z). Útil ao quebrar/colocar blocos."""
