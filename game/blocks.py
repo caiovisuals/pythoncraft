@@ -3,6 +3,7 @@ from game import textures as tex_module
 BLOCK_TYPE_SOLID = "solid"
 BLOCK_TYPE_INTERACTIVE = "interactive"
 BLOCK_TYPE_LIQUID = "liquid"
+BLOCK_TYPE_EFFECT = "liquid"
 
 class Block:
     def __init__(self, name: str, texture=None, textures: dict = None, block_type: str = BLOCK_TYPE_SOLID, hardness: float = 1, transparent: bool = False, **attributes):
@@ -50,6 +51,20 @@ def load_all_blocks():
         hardness=1
     ))
 
+    register_block("rooted_dirt", Block(
+        name="Terra Enraizada",
+        texture=tex_module.blocks["rooted_dirt"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=1
+    ))
+
+    register_block("lato_dirt", Block(
+        name="Latoterra",
+        texture=tex_module.blocks["lato_dirt"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=1
+    ))
+
     register_block("stone", Block(
         name="Pedra",
         texture=tex_module.blocks["stone"],
@@ -78,17 +93,36 @@ def load_all_blocks():
         hardness=2
     ))
 
-    register_block("water", Block(
-        name="Àgua",
-        texture=tex_module.blocks["water"],
+    register_block("water_flow", Block(
+        name="Àgua Corrente",
+        texture=tex_module.blocks["water_flow"],
         block_type=BLOCK_TYPE_LIQUID,
         transparent=True
     ))
 
-    register_block("lava", Block(
-        name="Lava",
-        texture=tex_module.blocks["lava"],
+    register_block("water_still", Block(
+        name="Àgua Parada",
+        texture=tex_module.blocks["water_still"],
+        block_type=BLOCK_TYPE_LIQUID,
+        transparent=True
+    ))
+
+    register_block("lava_flow", Block(
+        name="Lava Corrente",
+        texture=tex_module.blocks["lava_flow"],
         block_type=BLOCK_TYPE_LIQUID
+    ))
+
+    register_block("lava_still", Block(
+        name="Lava Parada",
+        texture=tex_module.blocks["lava_still"],
+        block_type=BLOCK_TYPE_LIQUID
+    ))
+
+    register_block("fire", Block(
+        name="Fogo",
+        texture=tex_module.blocks["fire"],
+        block_type=BLOCK_TYPE_EFFECT
     ))
 
     register_block("petroleum", Block(

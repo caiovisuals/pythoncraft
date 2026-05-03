@@ -34,11 +34,31 @@ def load_all_items():
         hunger=4,
     ))
 
+    register_item("banana", Item(
+        name="Banana",
+        texture=tex_module.items["banana"],
+        item_type=ITEM_TYPE_FOOD,
+        hunger=4,
+    ))
+
     register_item("carrot", Item(
         name="Cenoura",
         texture=tex_module.items["carrot"],
         item_type=ITEM_TYPE_FOOD,
         hunger=4,
+    ))
+
+    register_item("corn", Item(
+        name="Milho",
+        texture=tex_module.items["corn"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("beef", Item(
+        name="Carne Boniva",
+        texture=tex_module.items["beef"],
+        item_type=ITEM_TYPE_FOOD,
+        hunger=7,
     ))
 
     register_item("porkchop", Item(
@@ -73,6 +93,20 @@ def load_all_items():
         item_type=ITEM_TYPE_UTILITY,
     ))
 
+    register_item("flint", Item(
+        name="Sílex",
+        texture=tex_module.items["flint"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("bowl", Item(
+        name="Arco",
+        texture=tex_module.items["bowl"],
+        item_type=ITEM_TYPE_TOOL,
+        damage=5,
+        durability=140
+    ))
+
     register_item("stone_sword", Item(
         name="Espada de Pedra",
         texture=tex_module.items["stone_sword"],
@@ -102,4 +136,10 @@ def load_all_items():
         texture=tex_module.items["stick"],
         item_type=ITEM_TYPE_TOOL,
         damage=2,
+    ))
+
+    register_item("arrow", Item(
+        name="Flecha",
+        texture=tex_module.items["arrow"],
+        item_type=ITEM_TYPE_TOOL,
     ))

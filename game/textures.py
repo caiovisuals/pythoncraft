@@ -6,6 +6,8 @@ T_PLAYER_FEMININE = None
 T_GRASS_TOP = None
 T_GRASS_SIDE = None
 T_DIRT  = None
+T_ROOTED_DIRT = None
+T_LATO_DIRT = None
 T_STONE = None
 T_LIMESTONE = None
 T_COBBLESTONE = None
@@ -18,8 +20,11 @@ T_OBSIDIAN = None
 T_OAK_LEAVES = None
 T_ICE = None
 T_DEEPSLATE = None
-T_WATER = None
-T_LAVA = None
+T_WATER_FLOW = None
+T_WATER_STILL = None
+T_LAVA_FLOW = None
+T_LAVA_STILL = None
+T_FIRE = None
 T_PETROLEUM = None
 
 T_COW = None
@@ -36,17 +41,23 @@ T_CHICKEN = None
 T_PLAYER = None
 
 T_APPLE = None
+T_BANANA = None
 T_CARROT = None
+T_CORN = None
+T_BEEF = None
 T_PORKCHOP = None
 T_BREAD = None
 T_BOOK = None
 T_WHEAT_SEEDS = None
 T_WHEAT = None
+T_FLINT = None
+T_BOWL = None
 T_DIAMOND_SWORD = None
 T_IRON_SWORD = None
 T_STONE_SWORD = None
 T_WOODEN_SWORD = None
 T_STICK = None
+T_ARROW = None
 
 T_CROSS = None
 T_HOTBAR = None
@@ -64,10 +75,10 @@ gui = {}
 
 def load_all_textures():
     global T_PLAYER, T_PLAYER_FEMININE
-    global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_STONE, T_LIMESTONE, T_COBBLESTONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE, T_GLASS, T_OBSIDIAN, T_OAK_LEAVES, T_ICE, T_DEEPSLATE
+    global T_GRASS_SIDE, T_GRASS_TOP, T_DIRT, T_ROOTED_DIRT, T_LATO_DIRT, T_STONE, T_LIMESTONE, T_COBBLESTONE, T_WOOD, T_CRAFTING_TABLE_TOP, T_CRAFTING_TABLE_SIDE, T_GLASS, T_OBSIDIAN, T_OAK_LEAVES, T_ICE, T_DEEPSLATE
     global T_WATER, T_LAVA, T_PETROLEUM
     global T_COW, T_HORSE_BLACK, T_HORSE_BROWN, T_HORSE_CHESTNUT, T_HORSE_CREAMY, T_PIG, T_PALE_PIG, T_SPOTTED_PIG, T_SHEEP, T_SHEEP_FUR, T_PLAYER
-    global T_APPLE, T_CARROT, T_PORKCHOP, T_BREAD, T_BOOK, T_WHEAT_SEEDS, T_WHEAT, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_WOODEN_SWORD, T_STICK
+    global T_APPLE, T_BANANA, T_CARROT, T_CORN, T_BEEF, T_PORKCHOP, T_BREAD, T_BOOK, T_WHEAT_SEEDS, T_WHEAT, T_DIAMOND_SWORD, T_IRON_SWORD, T_STONE_SWORD, T_WOODEN_SWORD, T_STICK
     global T_CROSS, T_HOTBAR, T_SELECTED_ITEM, T_HEART, T_PROTECTION, T_BLOCK_BACKGROUND, T_INVENTORY
 
     global player, blocks, entities, items, gui
@@ -83,6 +94,8 @@ def load_all_textures():
     T_GRASS_TOP = load_texture('assets/textures/blocks/grass_top.png')
     T_GRASS_SIDE = load_texture('assets/textures/blocks/grass_side.png')
     T_DIRT  = load_texture('assets/textures/blocks/dirt.png')
+    T_ROOTED_DIRT  = load_texture('assets/textures/blocks/rooted_dirt.png')
+    T_LATO_DIRT  = load_texture('assets/textures/blocks/lato_dirt.png')
     T_STONE = load_texture('assets/textures/blocks/stone.png')
     T_LIMESTONE = load_texture('assets/textures/blocks/limestone.png')
     T_COBBLESTONE = load_texture('assets/textures/blocks/cobblestone.png')
@@ -103,6 +116,8 @@ def load_all_textures():
         "grass_top": T_GRASS_TOP,
         "grass_side": T_GRASS_SIDE,
         "dirt": T_DIRT,
+        "rooted_dirt": T_ROOTED_DIRT,
+        "lato_dirt": T_LATO_DIRT,
         "stone": T_STONE,
         "limestone": T_LIMESTONE,
         "cobblestone": T_COBBLESTONE,
@@ -149,31 +164,43 @@ def load_all_textures():
     }
 
     T_APPLE = load_texture('assets/textures/items/apple.png')
+    T_BANANA = load_texture('assets/textures/items/banana.png')
     T_CARROT = load_texture('assets/textures/items/carrot.png')
+    T_CORN = load_texture('assets/textures/items/corn.png')
+    T_BEEF = load_texture('assets/textures/items/beef.png')
     T_PORKCHOP = load_texture('assets/textures/items/porkchop.png')
     T_BREAD = load_texture('assets/textures/items/bread.png')
     T_BOOK = load_texture('assets/textures/items/book.png')
     T_WHEAT_SEEDS = load_texture('assets/textures/items/wheat_seeds.png')
     T_WHEAT = load_texture('assets/textures/items/wheat.png')
+    T_FLINT = load_texture('assets/textures/items/flint.png')
+    T_BOWL = load_texture('assets/textures/items/bowl.png')
     T_DIAMOND_SWORD = load_texture('assets/textures/items/diamond_sword.png')
     T_IRON_SWORD = load_texture('assets/textures/items/iron_sword.png')
     T_STONE_SWORD = load_texture('assets/textures/items/stone_sword.png')
     T_WOODEN_SWORD = load_texture('assets/textures/items/wooden_sword.png')
     T_STICK = load_texture('assets/textures/items/stick.png')
+    T_ARROW = load_texture('assets/textures/items/arrow.png')
 
     items = {
         "apple": T_APPLE,
+        "banana": T_BANANA,
         "carrot": T_CARROT,
+        "corn": T_CORN,
+        "beef": T_BEEF,
         "porkchop": T_PORKCHOP,
         "bread": T_BREAD,
         "book": T_BOOK,
         "wheat_seeds": T_WHEAT_SEEDS,
         "wheat": T_WHEAT,
+        "flint": T_FLINT,
+        "bowl": T_BOWL,
         "diamond_sword": T_DIAMOND_SWORD,
         "iron_sword": T_IRON_SWORD,
         "stone_sword": T_STONE_SWORD,
         "wooden_sword": T_WOODEN_SWORD,
         "stick": T_STICK,
+        "arrow": T_ARROW,
     }
 
     T_CROSS = load_texture('assets/textures/gui/crosshair.png')
