@@ -24,9 +24,7 @@ class HUD(Entity):
         self._build_hearts()
         self._build_hunger()
 
-    # ------------------------------------------------------------------
     # Construção dos ícones
-    # ------------------------------------------------------------------
 
     def _build_hearts(self):
         """Cria os ícones de coração (lado esquerdo da tela)."""
@@ -61,9 +59,7 @@ class HUD(Entity):
             )
             self.hunger_icons.append(icon)
 
-    # ------------------------------------------------------------------
     # Atualização a cada frame
-    # ------------------------------------------------------------------
 
     def update(self):
         if not self.enabled or not self.player_ref:
@@ -100,10 +96,8 @@ class HUD(Entity):
                 icon.color = color.gray
                 icon.alpha = 0.35
 
-    # ------------------------------------------------------------------
     # Helpers públicos
-    # ------------------------------------------------------------------
-
+    
     def attach_player(self, player_ref):
         """Liga o HUD a um novo PlayerController após re-spawn."""
         self.player_ref = player_ref

@@ -1,10 +1,9 @@
 from ursina import *
 from game.blocks import get_block
 from perlin_noise import PerlinNoise
+import random
 
-# ---------------------------------------------------------------------------
 # Configurações
-# ---------------------------------------------------------------------------
 CHUNK_SIZE  = 16   # blocos por chunk (X e Z)
 RENDER_DIST = 4    # chunks visíveis em cada direção a partir do jogador
 
@@ -15,9 +14,7 @@ placed_blocks: dict[tuple, str] = {}   # (x,y,z) → block_id string
 _chunk_entities: dict[tuple, Entity] = {}  # (cx,cz) → entity da mesh
 _surface_colliders: list = []  
 
-# ---------------------------------------------------------------------------
 # Geração de altura
-# ---------------------------------------------------------------------------
 def get_height(x: int, z: int, scale: float = 20, amplitude: int = 6) -> int:
     value = noise([x / scale, z / scale])
     return int(((value + 1) / 2) * amplitude)
@@ -30,9 +27,7 @@ def _block_id_for_layer(y: int, surface_y: int) -> str:
     else:
         return "stone"
 
-# ---------------------------------------------------------------------------
 # Faces do cubo — direção, normal, vértices, UV, vizinho
-# ---------------------------------------------------------------------------
 #  Cada face: (nome, vizinho_offset, vértices em ordem quad, rotação_euler_para_UV)
 #  Os vértices já estão em espaço local do bloco (centro = 0,0,0).
 
@@ -89,9 +84,7 @@ _QUAD_UVS = [
 # 2 triângulos por quad (índices dentro dos 4 vértices da face)
 _QUAD_TRIS = [0, 1, 2, 2, 3, 0]
 
-# ---------------------------------------------------------------------------
 # Resolução de textura por face
-# ---------------------------------------------------------------------------
 def _face_texture(block, face_name: str):
     """Retorna a textura correta de acordo com o nome da face."""
     tex_map = block.textures          # dict com top/bottom/side
@@ -102,9 +95,7 @@ def _face_texture(block, face_name: str):
     else:   # front / back / right / left  → side
         return tex_map.get("side") or tex_map.get("top")
 
-# ---------------------------------------------------------------------------
 # Construção de mesh por grupo de textura dentro de um chunk
-# ---------------------------------------------------------------------------
 def _build_chunk_mesh(cx: int, cz: int) -> Entity:
     """
     Constrói uma Entity por textura única dentro do chunk.
@@ -116,15 +107,21 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
     # Acumula vértices/UVs/triângulos separados por textura
     tex_buckets: dict = {}   # texture_object → {verts, uvs, tris}
 
+    # Pré-computa mapa de coluna → lista de y, limitado ao chunk (O(n) total)
+    col_map: dict[tuple, list] = {}
+    for (bx, by, bz) in placed_blocks:
+        if x0 <= bx < x0 + CHUNK_SIZE and z0 <= bz < z0 + CHUNK_SIZE:
+            key = (bx, bz)
+            if key not in col_map:
+                col_map[key] = []
+            col_map[key].append(by)
+
     for x in range(x0, x0 + CHUNK_SIZE):
         for z in range(z0, z0 + CHUNK_SIZE):
-            if (x, 0, z) not in placed_blocks:
+            if (x, z) not in col_map:
                 continue
 
-            # Encontra todas as alturas ocupadas nessa coluna
-            ys = [pos[1] for pos in placed_blocks if pos[0] == x and pos[2] == z]
-
-            for y in ys:
+            for y in col_map[(x, z)]:
                 block_id = placed_blocks.get((x, y, z))
                 if block_id is None:
                     continue
@@ -178,9 +175,7 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
     # (para interação precisa usa Voxel individual — ver nota abaixo)
     return parent_entity
 
-# ---------------------------------------------------------------------------
 # Voxel interativo (para raycasting de colocação/quebra de bloco)
-# ---------------------------------------------------------------------------
 class Voxel(Entity):
     """
     Entidade invisível usada apenas para colisão/raycast.
@@ -230,9 +225,77 @@ def _spawn_surface_colliders():
                 )
                 _surface_colliders.append(e)
 
-# ---------------------------------------------------------------------------
+# Geração de árvores e minérios
+
+def _place_tree(x: int, surface_y: int, z: int):
+    """Planta uma árvore de carvalho simples no ponto (x, surface_y, z)."""
+    trunk_height = random.randint(4, 6)
+
+    for dy in range(1, trunk_height + 1):
+        placed_blocks[(x, surface_y + dy, z)] = "oak_log"
+
+    top_y = surface_y + trunk_height
+    for dy in range(-1, 3):
+        radius = 2 if dy < 1 else 1
+        for dx in range(-radius, radius + 1):
+            for dz in range(-radius, radius + 1):
+                if dx == 0 and dz == 0 and dy < 1:
+                    continue  # tronco já colocado
+                pos = (x + dx, top_y + dy, z + dz)
+                if pos not in placed_blocks:
+                    placed_blocks[pos] = "oak_leaves"
+
+
+def _generate_trees(surface_map: dict, seed: int):
+    """Espalha árvores aleatoriamente sobre a superfície."""
+    rng = random.Random(seed)
+    positions = list(surface_map.keys())
+    rng.shuffle(positions)
+
+    min_distance = 8
+    placed_trees = []
+
+    # 1 árvore a cada 20 colunas; não planta na borda
+    for (x, z) in positions:
+        if rng.random() > 0.05:
+            continue
+        sy = surface_map[(x, z)]
+        if placed_blocks.get((x, sy, z)) != "grass":
+            continue
+        too_close = False
+        for (tx, tz) in placed_trees:
+            if (x - tx)**2 + (z - tz)**2 < min_distance**2:
+                too_close = True
+                break
+        if too_close:
+            continue
+
+        _place_tree(x, sy, z)
+
+
+def _generate_ores(surface_map: dict, seed: int):
+    """Insere veios de minério nas camadas de pedra."""
+    rng = random.Random(seed + 1)
+
+    ore_table = [
+        # (block_id, prob_por_bloco, y_max_relativo_superficie)
+        ("coal_ore",    0.04, -2),
+        ("iron_ore",    0.02, -4),
+        ("gold_ore",    0.01, -6),
+        ("diamond_ore", 0.004, -8),
+    ]
+
+    for (x, y, z), block_id in list(placed_blocks.items()):
+        if block_id != "stone":
+            continue
+        sy = surface_map.get((x, z), 0)
+        for ore_id, prob, max_rel_y in ore_table:
+            if y <= sy + max_rel_y and rng.random() < prob:
+                placed_blocks[(x, y, z)] = ore_id
+                break
+
+
 # API pública
-# ---------------------------------------------------------------------------
 def create_world(size: int = 16, max_height: int = 8):
     """
     Gera o mundo inteiro, popula placed_blocks e constrói as meshes por chunk.
@@ -248,11 +311,18 @@ def create_world(size: int = 16, max_height: int = 8):
     _surface_colliders.clear()
 
     # 1 — Preenche placed_blocks com IDs de bloco
+    surface_map: dict[tuple, int] = {}
     for x in range(-size, size):
         for z in range(-size, size):
             h = get_height(x, z)
+            surface_map[(x, z)] = h
             for y in range(-2, h + 1):
                 placed_blocks[(x, y, z)] = _block_id_for_layer(y, h)
+
+    # 1.5 Gera árvores e minérios sobre o terreno base
+    world_seed = noise.seed if hasattr(noise, "seed") else 42
+    _generate_trees(surface_map, world_seed)
+    _generate_ores(surface_map, world_seed)
 
     # 2 — Determina chunks envolvidos
     chunk_set: set[tuple] = set()

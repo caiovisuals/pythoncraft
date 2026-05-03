@@ -101,4 +101,7 @@ class PlayerController(FirstPersonController):
     
     def on_death(self):
         """Chamado quando o jogador morre"""
-        print("Você morreu!")
+        self.enabled = False
+        mouse.locked = False
+        if self.on_death_callback:
+            self.on_death_callback()

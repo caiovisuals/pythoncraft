@@ -12,6 +12,8 @@ T_STONE = None
 T_LIMESTONE = None
 T_COBBLESTONE = None
 T_WOOD  = None
+T_OAK_LOG = None
+T_OAK_LOG_TOP = None
 T_CRAFTING_TABLE_TOP = None
 T_CRAFTING_TABLE_SIDE = None
 T_CRAFTING_TABLE_BOTTOM = None
@@ -26,6 +28,10 @@ T_LAVA_FLOW = None
 T_LAVA_STILL = None
 T_FIRE = None
 T_PETROLEUM = None
+T_COAL_BLOCK = None
+T_IRON_BLOCK = None
+T_GOLD_BLOCK = None
+T_DIAMOND_BLOCK = None
 
 T_COW = None
 T_HORSE_BLACK = None
@@ -100,6 +106,8 @@ def load_all_textures():
     T_LIMESTONE = load_texture('assets/textures/blocks/limestone.png')
     T_COBBLESTONE = load_texture('assets/textures/blocks/cobblestone.png')
     T_WOOD  = load_texture('assets/textures/blocks/wood.png')
+    T_OAK_LOG = load_texture('assets/textures/blocks/oak_log.png')
+    T_OAK_LOG_TOP = load_texture('assets/textures/blocks/oak_log_top.png')
     T_CRAFTING_TABLE_TOP = load_texture('assets/textures/blocks/crafting_table_top.png')
     T_CRAFTING_TABLE_SIDE  = load_texture('assets/textures/blocks/crafting_table_side.png')
     T_CRAFTING_TABLE_BOTTOM = load_texture('assets/textures/blocks/crafting_table_bottom.png')
@@ -108,9 +116,16 @@ def load_all_textures():
     T_OAK_LEAVES = load_texture('assets/textures/blocks/oak_leaves.png')
     T_ICE = load_texture('assets/textures/blocks/ice.png')
     T_DEEPSLATE = load_texture('assets/textures/blocks/deepslate.png')
-    T_WATER = load_texture('assets/textures/blocks/water.png')
-    T_LAVA = load_texture('assets/textures/blocks/lava.png')
-    T_PETROLEUM = load_texture('assets/textures/blocks/petroleum.png')
+    T_WATER_FLOW  = load_texture('assets/textures/blocks/water_flow.png')
+    T_WATER_STILL = load_texture('assets/textures/blocks/water_still.png')
+    T_LAVA_FLOW   = load_texture('assets/textures/blocks/lava_flow.png')
+    T_LAVA_STILL  = load_texture('assets/textures/blocks/lava_still.png')
+    T_FIRE        = load_texture('assets/textures/blocks/fire_0.png')
+    T_PETROLEUM   = load_texture('assets/textures/blocks/petroleum.png')
+    T_COAL_BLOCK    = load_texture('assets/textures/blocks/coal_block.png')
+    T_IRON_BLOCK    = load_texture('assets/textures/blocks/iron_block.png')
+    T_GOLD_BLOCK    = load_texture('assets/textures/blocks/gold_block.png')
+    T_DIAMOND_BLOCK = load_texture('assets/textures/blocks/diamond_block.png')
 
     blocks = {
         "grass_top": T_GRASS_TOP,
@@ -122,6 +137,8 @@ def load_all_textures():
         "limestone": T_LIMESTONE,
         "cobblestone": T_COBBLESTONE,
         "wood": T_WOOD,
+        "oak_log": T_OAK_LOG,
+        "oak_log_top": T_OAK_LOG_TOP,
         "crafting_table_top": T_CRAFTING_TABLE_TOP,
         "crafting_table_side": T_CRAFTING_TABLE_SIDE,
         "crafting_table_bottom": T_CRAFTING_TABLE_BOTTOM,
@@ -130,9 +147,16 @@ def load_all_textures():
         "oak_leaves": T_OAK_LEAVES,
         "ice": T_ICE,
         "deepslate": T_DEEPSLATE,
-        "water": T_WATER,
-        "lava": T_LAVA,
+        "water_flow": T_WATER_FLOW,
+        "water_still": T_WATER_STILL,
+        "lava_flow": T_LAVA_FLOW,
+        "lava_still": T_LAVA_STILL,
+        "fire": T_FIRE,
         "petroleum": T_PETROLEUM,
+        "coal_block": T_COAL_BLOCK,
+        "iron_block": T_IRON_BLOCK,
+        "gold_block": T_GOLD_BLOCK,
+        "diamond_block": T_DIAMOND_BLOCK,
     }
 
     T_COW = load_texture('assets/textures/entities/cow/cow.png')
@@ -146,7 +170,6 @@ def load_all_textures():
     T_SHEEP  = load_texture('assets/textures/entities/sheep/sheep.png')
     T_SHEEP_FUR  = load_texture('assets/textures/entities/sheep/sheep_fur.png')
     T_CHICKEN = load_texture('assets/textures/entities/chicken/chicken.png')
-    T_PLAYER = load_texture('assets/textures/entities/player.png')
 
     entities = {
         "cow": T_COW,

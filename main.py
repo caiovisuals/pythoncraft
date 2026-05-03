@@ -109,13 +109,37 @@ def _try_place_block():
         from game.sounds import play_place_block
         play_place_block()
 
+def _on_player_death():
+    cross.enabled = False
+    hotbar.enabled = False
+    hud.hide()
+    ui.show_death_screen()
+
+
+def _respawn():
+    global player
+    ui.hide_death_screen()
+
+    children = world_parent.children[:]
+    for i in range(0, len(children), 50):
+        for c in children[i:i+50]:
+            destroy(c)
+
+    if player:
+        destroy(player)
+        player = None
+
+    start_game()
+
 def start_game():
     global player
 
+    ui.hide_death_screen()
     surface_y = create_world(size=16, max_height=8)
     player = PlayerController()
 
     player.position = Vec3(0, surface_y + 3, 0)
+    player.on_death_callback = _on_player_death
 
     mouse.locked = True
     ui.menu_panel.enabled = False
@@ -123,8 +147,11 @@ def start_game():
     cross.enabled = True
     hotbar.enabled = True
     inventory.enabled = True
+    hud.attach_player(player)
+    hud.show()
 
 ui.build_main_menu(start_game)
+ui.build_death_screen(_respawn)
 
 def input(key):
     global player, toggle_cooldown

@@ -94,14 +94,14 @@ def load_all_blocks():
     ))
 
     register_block("water_flow", Block(
-        name="Àgua Corrente",
+        name="Água Corrente",
         texture=tex_module.blocks["water_flow"],
         block_type=BLOCK_TYPE_LIQUID,
         transparent=True
     ))
 
     register_block("water_still", Block(
-        name="Àgua Parada",
+        name="Água Parada",
         texture=tex_module.blocks["water_still"],
         block_type=BLOCK_TYPE_LIQUID,
         transparent=True
@@ -175,4 +175,43 @@ def load_all_blocks():
         },
         block_type=BLOCK_TYPE_INTERACTIVE,
         hardness=2
+    ))
+
+    register_block("oak_log", Block(
+        name="Tronco de Carvalho",
+        textures={
+            "top": tex_module.blocks["oak_log_top"],
+            "bottom": tex_module.blocks["oak_log_top"],
+            "side": tex_module.blocks["oak_log"],
+        },
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=2
+    ))
+
+    register_block("coal_ore", Block(
+        name="Minério de Carvão",
+        texture=tex_module.blocks["coal_block"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=3
+    ))
+
+    register_block("iron_ore", Block(
+        name="Minério de Ferro",
+        texture=tex_module.blocks["iron_block"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=4
+    ))
+
+    register_block("gold_ore", Block(
+        name="Minério de Ouro",
+        texture=tex_module.blocks["gold_block"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=5
+    ))
+
+    register_block("diamond_ore", Block(
+        name="Minério de Diamante",
+        texture=tex_module.blocks["diamond_block"],
+        block_type=BLOCK_TYPE_SOLID,
+        hardness=7
     ))
