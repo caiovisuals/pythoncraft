@@ -1,1 +1,1 @@
-__all__ = ["particles"]
+__all__ = ["particles", "lighting"]

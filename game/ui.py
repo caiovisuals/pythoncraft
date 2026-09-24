@@ -42,9 +42,9 @@ def build_main_menu(start_game):
         scale=(0.4, 0.06), 
         origin=(0,0),
         y=-0.05,
-        color=color.rgb(111, 111, 111),
-        highlight_color=color.rgb(121, 121, 121),
-        pressed_color=color.rgb(86, 86, 86),
+        color=color.rgb32(111, 111, 111),
+        highlight_color=color.rgb32(121, 121, 121),
+        pressed_color=color.rgb32(86, 86, 86),
         text_color=color.white,
         radius=0.02,
         on_click=start_game
@@ -58,9 +58,9 @@ def build_main_menu(start_game):
         scale=(0.4, 0.06), 
         origin=(0,0),
         y=-0.15,
-        color=color.rgb(111, 111, 111),
-        highlight_color=color.rgb(121, 121, 121),
-        pressed_color=color.rgb(86, 86, 86),
+        color=color.rgb32(111, 111, 111),
+        highlight_color=color.rgb32(121, 121, 121),
+        pressed_color=color.rgb32(86, 86, 86),
         text_color=color.white,
         radius=0.02,
         on_click=application.quit
@@ -79,23 +79,18 @@ def build_main_menu(start_game):
     settings_panel.parent = camera.ui
     settings_panel.y = 0
 
-def toggle_settings_panel():
-    global settings_panel
+def set_settings_visible(visible: bool):
+    if settings_panel:
+        settings_panel.enabled = visible
 
-    if not settings_panel:
-        return
-    
-    settings_panel.enabled = not settings_panel.enabled
-    mouse.locked = not settings_panel.enabled
-
-def build_death_screen(respawn_callback):
+def build_death_screen(respawn_callback, menu_callback):
     global death_panel
     death_panel = Entity(parent=camera.ui, enabled=False)
 
     Entity(
         parent=death_panel,
         model="quad",
-        color=color.rgba(120, 0, 0, 160),
+        color=color.rgba32(120, 0, 0, 160),
         scale=(2, 2),
         z=1,
     )
@@ -119,9 +114,9 @@ def build_death_screen(respawn_callback):
         scale=(0.35, 0.06),
         origin=(0, 0),
         y=-0.05,
-        color=color.rgb(111, 111, 111),
-        highlight_color=color.rgb(121, 121, 121),
-        pressed_color=color.rgb(86, 86, 86),
+        color=color.rgb32(111, 111, 111),
+        highlight_color=color.rgb32(121, 121, 121),
+        pressed_color=color.rgb32(86, 86, 86),
         text_color=color.white,
         radius=0.02,
         on_click=respawn_callback,
@@ -135,12 +130,12 @@ def build_death_screen(respawn_callback):
         scale=(0.35, 0.06),
         origin=(0, 0),
         y=-0.14,
-        color=color.rgb(111, 111, 111),
-        highlight_color=color.rgb(121, 121, 121),
-        pressed_color=color.rgb(86, 86, 86),
+        color=color.rgb32(111, 111, 111),
+        highlight_color=color.rgb32(121, 121, 121),
+        pressed_color=color.rgb32(86, 86, 86),
         text_color=color.white,
         radius=0.02,
-        on_click=lambda: [setattr(death_panel, 'enabled', False), setattr(menu_panel, 'enabled', True)],
+        on_click=menu_callback,
     )
 
 

@@ -1,5 +1,6 @@
 from ursina import *
 import game.textures as textures
+from game.inventory import HOTBAR_PIXEL, HOTBAR_TOP, HOTBAR_LEFT, HOTBAR_WIDTH_PX
 
 class HUD(Entity):
     """
@@ -10,100 +11,104 @@ class HUD(Entity):
 
     MAX_HEARTS = 10   # 10 ícones = 20 HP (cada coração = 2 HP)
     MAX_HUNGER = 10   # 10 ícones = 20 fome
-    ICON_SCALE = 0.032
-    ICON_GAP   = 0.037
-    ROW_Y      = -0.40   # altura vertical no espaço da UI
+    ICON_PX = 9       # tamanho do ícone em pixels da GUI
+    STEP_PX = 8       # distância entre ícones (se sobrepõem 1px)
+    HUNGER_ICON = "mutton"
 
     def __init__(self, player_ref=None):
         super().__init__(parent=camera.ui, enabled=False)
         self.player_ref = player_ref
 
-        self.hearts       : list[Entity] = []
-        self.hunger_icons : list[Entity] = []
+        px = HOTBAR_PIXEL
+        self.icon_size = self.ICON_PX * px
+        self.row_y = HOTBAR_TOP + (3 + self.ICON_PX / 2) * px
+
+        self.vitals_group = Entity(parent=self)
+
+        self.heart_fills: list[Entity] = []
+        self.hunger_icons: list[Entity] = []
 
         self._build_hearts()
         self._build_hunger()
 
     # Construção dos ícones
-
     def _build_hearts(self):
-        """Cria os ícones de coração (lado esquerdo da tela)."""
-        start_x = -0.46
+        """Contorno + preenchimento (cheio/metade) da sprite sheet gui/heart.png."""
+        px = HOTBAR_PIXEL
 
         for i in range(self.MAX_HEARTS):
-            icon = Entity(
-                parent=self,
+            x = HOTBAR_LEFT + (self.ICON_PX / 2 + i * self.STEP_PX) * px
+            Entity(
+                parent=self.vitals_group,
                 model="quad",
-                texture=textures.T_HEART,
-                scale=(self.ICON_SCALE, self.ICON_SCALE),
-                position=(start_x + i * self.ICON_GAP, self.ROW_Y),
-                color=color.red,
+                texture=textures.gui["heart_container"],
+                scale=self.icon_size,
+                position=(x, self.row_y, 0),
             )
-            self.hearts.append(icon)
+            fill = Entity(
+                parent=self.vitals_group,
+                model="quad",
+                texture=textures.gui["heart_full"],
+                scale=self.icon_size,
+                position=(x, self.row_y, -0.01),
+            )
+            self.heart_fills.append(fill)
 
     def _build_hunger(self):
-        """
-        Cria os ícones de fome (lado direito da tela, espelhado).
-        Enquanto não houver textura de fome, usa o coração em laranja.
-        """
-        start_x = 0.46
-
+        """Ícones de fome, da direita para a esquerda, usando a textura de um alimento."""
+        px = HOTBAR_PIXEL
+        right = HOTBAR_LEFT + HOTBAR_WIDTH_PX * px
         for i in range(self.MAX_HUNGER):
+            x = right - (self.ICON_PX / 2 + i * self.STEP_PX) * px
             icon = Entity(
-                parent=self,
+                parent=self.vitals_group,
                 model="quad",
-                texture=textures.T_HEART,   # substituir por T_HUNGER quando existir
-                scale=(self.ICON_SCALE, self.ICON_SCALE),
-                position=(start_x - i * self.ICON_GAP, self.ROW_Y),
-                color=color.orange,
+                texture=textures.items.get(self.HUNGER_ICON),
+                scale=self.icon_size,
+                position=(x, self.row_y, -0.01),
             )
             self.hunger_icons.append(icon)
 
     # Atualização a cada frame
-
     def update(self):
-        if not self.enabled or not self.player_ref:
+        if not self.player_ref or not self.vitals_group.enabled:
             return
 
         self._refresh_hearts()
         self._refresh_hunger()
 
     def _refresh_hearts(self):
-        """Atualiza opacidade dos corações conforme o HP atual."""
-        hp         = self.player_ref.health
-        hp_max     = self.player_ref.max_health
-        filled     = round((hp / hp_max) * self.MAX_HEARTS)
-
-        for i, heart in enumerate(self.hearts):
-            if i < filled:
-                heart.color = color.red
-                heart.alpha = 1.0
+        health = self.player_ref.vitals.health
+        for i, fill in enumerate(self.heart_fills):
+            value = health - i * 2
+            if value >= 2:
+                fill.texture = textures.gui["heart_full"]
+                fill.visible = True
+            elif value == 1:
+                fill.texture = textures.gui["heart_half"]
+                fill.visible = True
             else:
-                heart.color = color.gray
-                heart.alpha = 0.35
+                fill.visible = False
 
     def _refresh_hunger(self):
-        """Atualiza opacidade dos ícones de fome conforme a fome atual."""
-        hunger     = self.player_ref.hunger
-        hunger_max = self.player_ref.max_hunger
-        filled     = round((hunger / hunger_max) * self.MAX_HUNGER)
-
+        hunger = self.player_ref.vitals.hunger
         for i, icon in enumerate(self.hunger_icons):
-            if i < filled:
-                icon.color = color.orange
-                icon.alpha = 1.0
-            else:
+            value = hunger - i * 2
+            if value >= 2:
+                icon.color = color.white
+            elif value == 1:
                 icon.color = color.gray
-                icon.alpha = 0.35
+            else:
+                icon.color = color.rgba(0, 0, 0, 0.4)
 
     # Helpers públicos
-    
     def attach_player(self, player_ref):
         """Liga o HUD a um novo PlayerController após re-spawn."""
         self.player_ref = player_ref
 
-    def show(self):
+    def show(self, show_vitals: bool = True):
         self.enabled = True
+        self.vitals_group.enabled = show_vitals
 
     def hide(self):
         self.enabled = False

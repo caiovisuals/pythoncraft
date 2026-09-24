@@ -1,7 +1,10 @@
 __all__ = [
-    "player",
-    "world",
+    "core",
+    "graphics",
     "inventory",
+    "hud",
+    "sounds",
+    "craft",
     "ui",
     "textures",
     "items",

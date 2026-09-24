@@ -3,10 +3,12 @@ from game import textures as tex_module
 BLOCK_TYPE_SOLID = "solid"
 BLOCK_TYPE_INTERACTIVE = "interactive"
 BLOCK_TYPE_LIQUID = "liquid"
-BLOCK_TYPE_EFFECT = "liquid"
+BLOCK_TYPE_EFFECT = "effect"
+
+DROP_SELF = "__self__"  # o bloco dropa ele mesmo ao ser quebrado
 
 class Block:
-    def __init__(self, name: str, texture=None, textures: dict = None, block_type: str = BLOCK_TYPE_SOLID, hardness: float = 1, transparent: bool = False, **attributes):
+    def __init__(self, name: str, texture=None, textures: dict = None, block_type: str = BLOCK_TYPE_SOLID, hardness: float = 1, transparent: bool = False, drop: str | None = DROP_SELF, **attributes):
         self.name = name
         if textures:
             self.textures = textures
@@ -19,7 +21,13 @@ class Block:
         self.type = block_type
         self.hardness = hardness
         self.transparent = transparent
+        self.drop = drop
         self.attributes = attributes
+
+    @property
+    def drop_id(self) -> str | None:
+        """ID do que o bloco dropa ao ser quebrado no Survival (None = nada)."""
+        return self.id if self.drop == DROP_SELF else self.drop
 
     def __repr__(self):
         return f"<Block {self.name} ({self.type})>"
@@ -27,6 +35,7 @@ class Block:
 BLOCKS = {}
 
 def register_block(id: str, block: Block):
+    block.id = id
     BLOCKS[id] = block
 
 def get_block(id: str):
@@ -41,7 +50,8 @@ def load_all_blocks():
             "side": tex_module.blocks["grass_side"]
         },
         block_type=BLOCK_TYPE_SOLID,
-        hardness=1
+        hardness=1,
+        drop="dirt"
     ))
 
     register_block("dirt", Block(
@@ -69,7 +79,8 @@ def load_all_blocks():
         name="Pedra",
         texture=tex_module.blocks["stone"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=3
+        hardness=3,
+        drop="cobblestone"
     ))
 
     register_block("limestone", Block(
@@ -135,14 +146,17 @@ def load_all_blocks():
         name="Folhas de Carvalho",
         texture=tex_module.blocks["oak_leaves"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=1
+        hardness=1,
+        transparent=True,
+        drop=None
     ))
 
     register_block("ice", Block(
         name="Gelo",
         texture=tex_module.blocks["ice"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=2
+        hardness=2,
+        drop=None
     ))
     
     register_block("deepslate", Block(
@@ -163,7 +177,9 @@ def load_all_blocks():
         name="Vidro",
         texture=tex_module.blocks["glass"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=1.5
+        hardness=1.5,
+        transparent=True,
+        drop=None
     ))
 
     register_block("crafting_table", Block(

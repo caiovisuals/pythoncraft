@@ -1,1 +1,2 @@
-ursina>=0.8.4
+ursina>=7.0,<8
+perlin-noise>=1.12

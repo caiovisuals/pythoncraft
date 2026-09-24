@@ -6,13 +6,17 @@ import random
 # Configurações
 CHUNK_SIZE  = 16   # blocos por chunk (X e Z)
 RENDER_DIST = 4    # chunks visíveis em cada direção a partir do jogador
+WORLD_BOTTOM = -2  # camada mais baixa do mundo
 
 noise = PerlinNoise(octaves=4)
 
 world_parent  = Entity()
 placed_blocks: dict[tuple, str] = {}   # (x,y,z) → block_id string
 _chunk_entities: dict[tuple, Entity] = {}  # (cx,cz) → entity da mesh
-_surface_colliders: list = []  
+_colliders: dict[tuple, Entity] = {}      # (x,y,z) → colisor invisível do bloco
+_light_level = 1.0                         # brilho do mundo (ciclo dia/noite)
+
+_NEIGHBOR_OFFSETS = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]
 
 # Geração de altura
 def get_height(x: int, z: int, scale: float = 20, amplitude: int = 6) -> int:
@@ -84,6 +88,16 @@ _QUAD_UVS = [
 # 2 triângulos por quad (índices dentro dos 4 vértices da face)
 _QUAD_TRIS = [0, 1, 2, 2, 3, 0]
 
+# Iluminação básica por face (como no Minecraft): topo claro, laterais e fundo mais escuros
+_FACE_SHADE = {
+    "top": 1.0,
+    "front": 0.8,
+    "back": 0.8,
+    "right": 0.65,
+    "left": 0.65,
+    "bottom": 0.5,
+}
+
 # Resolução de textura por face
 def _face_texture(block, face_name: str):
     """Retorna a textura correta de acordo com o nome da face."""
@@ -143,12 +157,15 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
                     if tex is None:
                         continue
 
-                    bucket = tex_buckets.setdefault(tex, {"verts": [], "uvs": [], "tris": []})
+                    bucket = tex_buckets.setdefault(tex, {"verts": [], "uvs": [], "tris": [], "colors": []})
+                    shade = _FACE_SHADE[face_name]
+                    face_color = color.Color(shade, shade, shade, 1)
 
                     base_idx = len(bucket["verts"])
                     for v, uv in zip(verts, _QUAD_UVS):
                         bucket["verts"].append(Vec3(v.x + x, v.y + y, v.z + z))
                         bucket["uvs"].append(uv)
+                        bucket["colors"].append(face_color)
                     for t in _QUAD_TRIS:
                         bucket["tris"].append(base_idx + t)
 
@@ -161,6 +178,7 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
         mesh = Mesh(
             vertices=data["verts"],
             uvs=data["uvs"],
+            colors=data["colors"],
             triangles=data["tris"],
             mode="triangle",
         )
@@ -168,62 +186,54 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
             parent=parent_entity,
             model=mesh,
             texture=tex,
-            color=color.white,
+            color=color.Color(_light_level, _light_level, _light_level, 1),
         )
 
-    # Colisão simplificada: um único box collider por chunk
-    # (para interação precisa usa Voxel individual — ver nota abaixo)
     return parent_entity
 
-# Voxel interativo (para raycasting de colocação/quebra de bloco)
-class Voxel(Entity):
+def is_exposed(pos: tuple, blocks: dict) -> bool:
     """
-    Entidade invisível usada apenas para colisão/raycast.
-    A parte visual fica na mesh do chunk.
+    Um bloco precisa de colisor quando algum vizinho está vazio, ou seja,
+    quando o jogador pode encostar nele ou mirar nele.
+    O "vizinho" abaixo da camada mais baixa do mundo não conta.
     """
-    def __init__(self, position=(0, 0, 0), block_id: str = "stone"):
-        block = get_block(block_id)
-        if block is None:
-            raise ValueError(f"Block '{block_id}' não encontrado.")
-        super().__init__(
+    x, y, z = pos
+    for dx, dy, dz in _NEIGHBOR_OFFSETS:
+        ny = y + dy
+        if ny < WORLD_BOTTOM:
+            continue
+        if (x + dx, ny, z + dz) not in blocks:
+            return True
+    return False
+
+def _update_collider(pos: tuple):
+    """Cria ou remove o colisor de uma posição conforme ela esteja exposta."""
+    needs_collider = pos in placed_blocks and is_exposed(pos, placed_blocks)
+    has_collider = pos in _colliders
+
+    if needs_collider and not has_collider:
+        _colliders[pos] = Entity(
             parent=world_parent,
-            position=position,
+            position=pos,
             model="cube",
-            origin_y=0.5,
-            color=color.clear,          # invisível — a mesh do chunk renderiza
             collider="box",
             visible=False,
+            color=color.clear,
         )
-        self.block_id = block_id
+    elif has_collider and not needs_collider:
+        destroy(_colliders.pop(pos))
 
-def _spawn_surface_colliders():
-    global _surface_colliders
- 
-    for col in _surface_colliders:
-        destroy(col)
-    _surface_colliders.clear()
- 
-    # Mapa de altura máxima por coluna (x, z)
-    surface_map: dict[tuple, int] = {}
-    for (x, y, z) in placed_blocks:
-        key = (x, z)
-        if key not in surface_map or y > surface_map[key]:
-            surface_map[key] = y
- 
-    for (x, z), top_y in surface_map.items():
-        # 3 camadas de topo: suporta desníveis e escadas naturais
-        for dy in range(3):
-            y = top_y - dy
-            if (x, y, z) in placed_blocks:
-                e = Entity(
-                    parent=world_parent,
-                    position=(x, y, z),
-                    model="cube",
-                    collider="box",
-                    visible=False,
-                    color=color.clear,
-                )
-                _surface_colliders.append(e)
+def _spawn_all_colliders():
+    """Cria colisores para todos os blocos expostos (usado ao gerar o mundo)."""
+    for pos in placed_blocks:
+        _update_collider(pos)
+
+def _update_colliders_around(pos: tuple):
+    """Atualiza o colisor da posição editada e dos 6 vizinhos."""
+    x, y, z = pos
+    _update_collider(pos)
+    for dx, dy, dz in _NEIGHBOR_OFFSETS:
+        _update_collider((x + dx, y + dy, z + dz))
 
 # Geração de árvores e minérios
 
@@ -253,11 +263,14 @@ def _generate_trees(surface_map: dict, seed: int):
     rng.shuffle(positions)
 
     min_distance = 8
+    spawn_clearance = 3
     placed_trees = []
 
     # 1 árvore a cada 20 colunas; não planta na borda
     for (x, z) in positions:
         if rng.random() > 0.05:
+            continue
+        if abs(x) <= spawn_clearance and abs(z) <= spawn_clearance:
             continue
         sy = surface_map[(x, z)]
         if placed_blocks.get((x, sy, z)) != "grass":
@@ -271,6 +284,7 @@ def _generate_trees(surface_map: dict, seed: int):
             continue
 
         _place_tree(x, sy, z)
+        placed_trees.append((x, z))
 
 
 def _generate_ores(surface_map: dict, seed: int):
@@ -296,27 +310,27 @@ def _generate_ores(surface_map: dict, seed: int):
 
 
 # API pública
+def clear_world():
+    """Remove todos os blocos, meshes e colisores do mundo."""
+    for c in list(world_parent.children):
+        destroy(c)
+    placed_blocks.clear()
+    _chunk_entities.clear()
+    _colliders.clear()
+
 def create_world(size: int = 16, max_height: int = 8):
     """
     Gera o mundo inteiro, popula placed_blocks e constrói as meshes por chunk.
     size  = raio em blocos a partir da origem (gera [-size, size) em X e Z).
     """
-    global placed_blocks, _chunk_entities
-
-    # Limpa tudo
-    for c in list(world_parent.children):
-        destroy(c)
-    placed_blocks.clear()
-    _chunk_entities.clear()
-    _surface_colliders.clear()
-
+    clear_world()
     # 1 — Preenche placed_blocks com IDs de bloco
     surface_map: dict[tuple, int] = {}
     for x in range(-size, size):
         for z in range(-size, size):
             h = get_height(x, z)
             surface_map[(x, z)] = h
-            for y in range(-2, h + 1):
+            for y in range(WORLD_BOTTOM, h + 1):
                 placed_blocks[(x, y, z)] = _block_id_for_layer(y, h)
 
     # 1.5 Gera árvores e minérios sobre o terreno base
@@ -336,9 +350,32 @@ def create_world(size: int = 16, max_height: int = 8):
         entity = _build_chunk_mesh(cx, cz)
         _chunk_entities[(cx, cz)] = entity
 
-    _spawn_surface_colliders()
+    _spawn_all_colliders()
     
-    return get_height(0, 0)
+    return get_top_y(0, 0)
+
+def get_top_y(x: int, z: int) -> int:
+    """Altura do bloco mais alto na coluna (x, z)."""
+    column = [by for (bx, by, bz) in placed_blocks if bx == x and bz == z]
+    return max(column) if column else get_height(x, z)
+
+def set_light_level(level: float):
+    """
+    Ajusta o brilho de todas as malhas do mundo (0 a 1).
+    A Ursina desliga a herança de cor entre entidades, então a cor é aplicada em cada malha.
+    """
+    global _light_level
+    if abs(level - _light_level) < 0.005:
+        return
+    _light_level = level
+    light = color.Color(level, level, level, 1)
+    for chunk in _chunk_entities.values():
+        for mesh_entity in chunk.children:
+            mesh_entity.color = light
+
+def get_block_at(pos: tuple) -> str | None:
+    """ID do bloco na posição (x, y, z), ou None se estiver vazia."""
+    return placed_blocks.get((int(pos[0]), int(pos[1]), int(pos[2])))
 
 def break_block(pos: tuple) -> bool:
     """
@@ -350,7 +387,8 @@ def break_block(pos: tuple) -> bool:
     if key not in placed_blocks:
         return False
     del placed_blocks[key]
-    rebuild_chunk_at((x, y, z))
+    rebuild_chunk_at(key)
+    _update_colliders_around(key)
     return True
  
  
@@ -366,16 +404,32 @@ def place_block(pos: tuple, block_id: str) -> bool:
     if get_block(block_id) is None:
         return False
     placed_blocks[key] = block_id
-    rebuild_chunk_at((x, y, z))
+    rebuild_chunk_at(key)
+    _update_colliders_around(key)
     return True
 
+def chunks_to_rebuild(world_pos: tuple) -> set:
+    """
+    Chunks afetados por uma edição em (x, y, z): o próprio chunk e, se o bloco
+    estiver na borda, o chunk vizinho (cuja face encostada pode aparecer/sumir).
+    """
+    x, _, z = (int(v) for v in world_pos)
+    cx, cz = x // CHUNK_SIZE, z // CHUNK_SIZE
+    chunks = {(cx, cz)}
+    lx, lz = x % CHUNK_SIZE, z % CHUNK_SIZE
+    if lx == 0:
+        chunks.add((cx - 1, cz))
+    elif lx == CHUNK_SIZE - 1:
+        chunks.add((cx + 1, cz))
+    if lz == 0:
+        chunks.add((cx, cz - 1))
+    elif lz == CHUNK_SIZE - 1:
+        chunks.add((cx, cz + 1))
+    return chunks
+
 def rebuild_chunk_at(world_pos: tuple):
-    """Reconstrói o chunk que contém a posição (x, y, z). Útil ao quebrar/colocar blocos."""
-    x, y, z = world_pos
-    cx = int(x) // CHUNK_SIZE
-    cz = int(z) // CHUNK_SIZE
-    key = (cx, cz)
-    if key in _chunk_entities:
-        destroy(_chunk_entities[key])
-    _chunk_entities[key] = _build_chunk_mesh(cx, cz)
-    _spawn_surface_colliders()
+    """Reconstrói o(s) chunk(s) afetado(s) por uma edição em (x, y, z)."""
+    for key in chunks_to_rebuild(world_pos):
+        if key in _chunk_entities:
+            destroy(_chunk_entities[key])
+        _chunk_entities[key] = _build_chunk_mesh(*key)

@@ -16,14 +16,25 @@ O projeto foca em aprendizado, experimentação e construção de sistemas funda
 - **[Python](https://www.python.org)** - ^3.10+
 - **[Ursina Engine](https://www.ursinaengine.org)**
 - **[Panda3D](https://www.panda3d.org)**
+- **[perlin-noise](https://pypi.org/project/perlin-noise/)**
 
 Instale as dependências com:
 ```
-pip install ursina
+pip install -r requirements.txt
 ```
 E rode o projeto com:
 ```
 python main.py
+```
+
+Para habilitar atalhos de desenvolvimento (como `R` para voltar ao menu):
+```
+python main.py --debug
+```
+
+Rode os testes (usam o `unittest` da biblioteca padrão) com:
+```
+python -m unittest discover tests
 ```
 
 ## Objetivos
@@ -33,6 +44,7 @@ python main.py
 - Sistema de inventário e hotbar
 - Itens e entidades customizadas
 - Interface com menu, configurações e HUD
+- Estudos de desenvolvimento de jogos (dessa vez com python)
 
 by caiothevisual  
-#caiobavisuals #minecraft #python
+#caiobavisuals #minecraft #python #games #sandbox

@@ -1,4 +1,3 @@
-from game.textures import items
 from typing import List, Optional, Dict, TypedDict
 
 class Recipe(TypedDict):
@@ -32,16 +31,24 @@ RECIPES: Dict[str, Recipe] = {
     },
     "iron_sword": {
         "pattern": [
-            [None, "iron", None],
-            [None, "iron", None],
+            [None, "iron_ingot", None],
+            [None, "iron_ingot", None],
             [None, "stick", None],
         ],
         "result": "iron_sword",
     },
+    "wooden_sword": {
+        "pattern": [
+            [None, "wood", None],
+            [None, "wood", None],
+            [None, "stick", None],
+        ],
+        "result": "wooden_sword",
+    },
     "stone_sword": {
         "pattern": [
-            [None, "stone", None],
-            [None, "stone", None],
+            [None, "cobblestone", None],
+            [None, "cobblestone", None],
             [None, "stick", None],
         ],
         "result": "stone_sword",

@@ -55,7 +55,7 @@ def load_all_items():
     ))
 
     register_item("beef", Item(
-        name="Carne Boniva",
+        name="Carne Bovina",
         texture=tex_module.items["beef"],
         item_type=ITEM_TYPE_FOOD,
         hunger=7,
@@ -100,11 +100,29 @@ def load_all_items():
     ))
 
     register_item("bowl", Item(
-        name="Arco",
+        name="Tijela",
         texture=tex_module.items["bowl"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("iron_ingot", Item(
+        name="Barra de Ferro",
+        texture=tex_module.items["iron_ingot"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("diamond", Item(
+        name="Diamante",
+        texture=tex_module.items["diamond"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("wooden_sword", Item(
+        name="Espada de Madeira",
+        texture=tex_module.items["wooden_sword"],
         item_type=ITEM_TYPE_TOOL,
-        damage=5,
-        durability=140
+        damage=4,
+        durability=59
     ))
 
     register_item("stone_sword", Item(
