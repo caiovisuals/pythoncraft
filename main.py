@@ -77,6 +77,7 @@ def _set_game_ui_visible(visible: bool):
 def _spawn_player():
     game.player = PlayerController(hotbar=hotbar, inventory_screen=inventory_screen, mode=game.mode)
     game.player.position = spawn_point
+    game.player.unstuck()
     game.player.on_death_callback = _on_player_death
 
     hud.attach_player(game.player)
@@ -127,7 +128,8 @@ def _try_place_block():
     bz = round(hit.world_point.z + hit.world_normal.z * 0.5)
 
     # Não deixa colocar bloco dentro do jogador (pés ou cabeça)
-    if block_overlaps_player((bx, by, bz), game.player.position):
+    player = game.player
+    if block_overlaps_player((bx, by, bz), player.position, player.width, player.height):
         return
 
     block_id = game.mode.block_to_place(hotbar)
