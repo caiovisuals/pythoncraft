@@ -1,4 +1,4 @@
-# PYTHONCRAFT
+# PYTHONCRAFT - ᴘᴛ
 
 Um jogo sandbox 3D inspirado em **Minecraft**, desenvolvido inteiramente em Python utilizando a engine Ursina.<br/>
 O projeto foca em aprendizado, experimentação e construção de sistemas fundamentais de um jogo voxel: mundo, jogador, inventário, itens, entidades e interface.
@@ -44,5 +44,46 @@ python -m unittest discover tests
 - Interface com menu, configurações e HUD
 - Estudos de desenvolvimento de jogos (dessa vez com python)
 
+# PYTHONCRAFT - ᴇɴ
+
+A 3D sandbox game inspired by **Minecraft**, developed entirely in Python using the Ursina engine.
+
+The project focuses on learning, experimentation, and building the fundamental systems of a voxel game: world, player, inventory, items, entities, and interface.
+
+## Dependencies
+
+- **[Python](https://www.python.org)** - 3.10+
+- **[Ursina Engine](https://www.ursinaengine.org)**
+- **[Panda3D](https://www.panda3d.org)**
+- **[perlin-noise](https://pypi.org/project/perlin-noise)**
+
+Install the dependencies with:
+```
+pip install -r requirements.txt
+```
+And run the project with:
+```
+python main.py
+```
+
+To enable development shortcuts (such as `R` to return to menu):
+
+```python main.py --debug
+```
+
+Run the tests (using the `unittest` from the standard library) with:
+
+```python -m unittest discover tests
+```
+
+## Objectives
+
+- Exploration of a voxel world
+- First-person control
+- Inventory and hotbar system
+- Custom items and entities
+- Interface with menu, settings, and HUD
+- Game development studies (this time with Python)
+
 by caiothevisual<br />
-#caiobavisuals #minecraft #python #games #sandbox
+#minecraft #mojang #python #games #sandbox #ursina #perlin-noise

@@ -1,4 +1,4 @@
-# CONTRIBUIÇÃO
+# CONTRIBUIÇÃO - ᴘᴛ
 
 Obrigado por considerar contribuir com o meu projeto Pythoncraft! Este documento explica como o projeto está organizado, os padrões que seguimos e como submeter sua contribuição da forma certa.
 
