@@ -161,3 +161,27 @@ def load_all_items():
         texture=tex_module.items["arrow"],
         item_type=ITEM_TYPE_TOOL,
     ))
+
+    register_item("firework_rocket", Item(
+        name="Fogos de Artifício",
+        texture=tex_module.items["firework_rocket"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("sugar", Item(
+        name="Açucar",
+        texture=tex_module.items["sugar"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("sugar_cane", Item(
+        name="Cana de Açucar",
+        texture=tex_module.items["sugar_cane"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("saddle", Item(
+        name="Sela",
+        texture=tex_module.items["saddle"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))

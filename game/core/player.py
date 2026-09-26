@@ -2,9 +2,12 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from game.core.vitals import Vitals
 
+MAX_PHYSICS_DT = 1 / 30
+
 class PlayerController(FirstPersonController):
     def __init__(self, hotbar, inventory_screen, mode, **kwargs):
         super().__init__(**kwargs)
+        camera.fov = 110
         self.cursor.visible = False
         self.gravity = 0.5
         self.speed = 5

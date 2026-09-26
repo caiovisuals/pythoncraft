@@ -57,3 +57,5 @@ Abra uma issue com:
 - **O que deveria acontecer** (comportamento esperado)
 - **Como reproduzir** (passo a passo)
 - **Versão do Python e sistema operacional**
+
+by caiothevisual

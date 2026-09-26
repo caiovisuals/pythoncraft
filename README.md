@@ -6,9 +6,7 @@ O projeto foca em aprendizado, experimentação e construção de sistemas funda
 ## Capturas de Telas
 
 ![Menu Principal](assets/screenshots/1.png)
-
 ![Modo Solo](assets/screenshots/2.png)
-
 ![Modo Multiplayer](assets/screenshots/3.png)
 
 ## Dependências
@@ -16,7 +14,7 @@ O projeto foca em aprendizado, experimentação e construção de sistemas funda
 - **[Python](https://www.python.org)** - ^3.10+
 - **[Ursina Engine](https://www.ursinaengine.org)**
 - **[Panda3D](https://www.panda3d.org)**
-- **[perlin-noise](https://pypi.org/project/perlin-noise/)**
+- **[perlin-noise](https://pypi.org/project/perlin-noise)**
 
 Instale as dependências com:
 ```
@@ -46,5 +44,5 @@ python -m unittest discover tests
 - Interface com menu, configurações e HUD
 - Estudos de desenvolvimento de jogos (dessa vez com python)
 
-by caiothevisual  
+by caiothevisual<br />
 #caiobavisuals #minecraft #python #games #sandbox

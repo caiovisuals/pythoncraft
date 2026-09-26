@@ -1,3 +1,5 @@
+from typing import Optional
+
 from game.blocks import get_block
 
 class GameMode:

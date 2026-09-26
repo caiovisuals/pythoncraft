@@ -5,8 +5,8 @@ import random
 
 # Configurações
 CHUNK_SIZE  = 16   # blocos por chunk (X e Z)
-RENDER_DIST = 4    # chunks visíveis em cada direção a partir do jogador
-WORLD_BOTTOM = -2  # camada mais baixa do mundo
+RENDER_DIST = 10    # chunks visíveis em cada direção a partir do jogador
+WORLD_BOTTOM = -3  # camada mais baixa do mundo
 
 noise = PerlinNoise(octaves=4)
 
@@ -83,6 +83,13 @@ _QUAD_UVS = [
     Vec2(1, 0),
     Vec2(1, 1),
     Vec2(0, 1),
+]
+
+_SIDE_UVS = [
+    Vec2(1, 0),
+    Vec2(1, 1),
+    Vec2(0, 1),
+    Vec2(0, 0),
 ]
 
 # 2 triângulos por quad (índices dentro dos 4 vértices da face)
@@ -162,7 +169,8 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
                     face_color = color.Color(shade, shade, shade, 1)
 
                     base_idx = len(bucket["verts"])
-                    for v, uv in zip(verts, _QUAD_UVS):
+                    uvs = _QUAD_UVS if face_name in ("top", "bottom") else _SIDE_UVS
+                    for v, uv in zip(verts, uvs):
                         bucket["verts"].append(Vec3(v.x + x, v.y + y, v.z + z))
                         bucket["uvs"].append(uv)
                         bucket["colors"].append(face_color)

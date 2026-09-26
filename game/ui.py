@@ -1,5 +1,7 @@
 from ursina import *
 
+from game.core.modes import MODES
+
 menu_panel = None
 settings_panel = None
 death_panel = None
@@ -23,7 +25,7 @@ def build_main_menu(start_game):
     )
 
     Text(
-        "by caiovisuals", 
+        "by caiothedev", 
         parent=menu_panel, 
         font=mainFont,
         pixel_perfect=True,
@@ -34,21 +36,22 @@ def build_main_menu(start_game):
         color=color.gray
     )
 
-    Button(
-        "Jogar", 
-        parent=menu_panel, 
-        font=mainFont,
-        pixel_perfect=True,
-        scale=(0.4, 0.06), 
-        origin=(0,0),
-        y=-0.05,
-        color=color.rgb32(111, 111, 111),
-        highlight_color=color.rgb32(121, 121, 121),
-        pressed_color=color.rgb32(86, 86, 86),
-        text_color=color.white,
-        radius=0.02,
-        on_click=start_game
-    )
+    for i, mode in enumerate(MODES.values()):
+        Button(
+            f"Jogar {mode.name}", 
+            parent=menu_panel, 
+            font=mainFont,
+            pixel_perfect=True,
+            scale=(0.4, 0.06), 
+            origin=(0,0),
+            y=-0.05 - i * 0.08,
+            color=color.rgb32(111, 111, 111),
+            highlight_color=color.rgb32(121, 121, 121),
+            pressed_color=color.rgb32(86, 86, 86),
+            text_color=color.white,
+            radius=0.02,
+            on_click=Func(start_game, mode.id)
+        )
 
     Button(
         "Sair", 
@@ -57,7 +60,7 @@ def build_main_menu(start_game):
         pixel_perfect=True,
         scale=(0.4, 0.06), 
         origin=(0,0),
-        y=-0.15,
+        y=-0.05 - len(MODES) * 0.08,
         color=color.rgb32(111, 111, 111),
         highlight_color=color.rgb32(121, 121, 121),
         pressed_color=color.rgb32(86, 86, 86),

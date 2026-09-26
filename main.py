@@ -31,7 +31,7 @@ DEBUG = "--debug" in sys.argv
 
 REACH = 6  # distância máxima para quebrar/colocar blocos
 
-window.title = "pythoncraft - bycaiovisuals"
+window.title = "pythoncraft - bycaiothedev"
 window.borderless = False
 window.fullscreen = False
 window.exit_button.visible = False
@@ -157,7 +157,7 @@ def _enter_loading(previous):
     global spawn_point
     ui.menu_panel.enabled = False
 
-    surface_y = create_world(size=16, max_height=8)
+    surface_y = create_world(size=28, max_height=8)
     spawn_point = Vec3(0, surface_y + 3, 0)
     game.mode.setup_hotbar(hotbar)
     hotbar.select(0)
@@ -255,13 +255,13 @@ def input(key):
 
     # Scroll da hotbar
     elif key == "scroll up":
-        hotbar.hotbar.scroll(1)
+        hotbar.scroll(1)
 
     elif key == "scroll down":
-        hotbar.hotbar.scroll(-1)
+        hotbar.scroll(-1)
 
     # Atalhos numéricos 1-9 para selecionar slot da hotbar
     elif len(key) == 1 and key in "123456789":
-        hotbar.hotbar.select(int(key) - 1)
+        hotbar.select(int(key) - 1)
 
 app.run()
