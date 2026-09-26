@@ -68,14 +68,14 @@ python main.py
 
 To enable development shortcuts (such as `R` to return to menu):
 
-```python main.py --debug
+```
+python main.py --debug
 ```
 
 Run the tests (using the `unittest` from the standard library) with:
-
-```python -m unittest discover tests
 ```
-
+python -m unittest discover tests
+```
 ## Objectives
 
 - Exploration of a voxel world
