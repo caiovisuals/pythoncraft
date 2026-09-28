@@ -7,8 +7,25 @@ BLOCK_TYPE_EFFECT = "effect"
 
 DROP_SELF = "__self__"  # o bloco dropa ele mesmo ao ser quebrado
 
+# Ferramenta que acelera a quebra de cada bloco
+TOOL_PICKAXE = "pickaxe"
+TOOL_AXE = "axe"
+TOOL_SHOVEL = "shovel"
+TOOL_HOE = "hoe"
+
 class Block:
-    def __init__(self, name: str, texture=None, textures: dict = None, block_type: str = BLOCK_TYPE_SOLID, hardness: float = 1, transparent: bool = False, drop: str | None = DROP_SELF, **attributes):
+    def __init__(
+        self,
+        name: str,
+        texture=None,
+        textures: dict = None,
+        block_type: str = BLOCK_TYPE_SOLID,
+        hardness: float = 1,
+        transparent: bool = False,
+        drop: str | None = DROP_SELF,
+        tool: str | None = None,
+        **attributes
+    ):
         self.name = name
         if textures:
             self.textures = textures
@@ -22,6 +39,7 @@ class Block:
         self.hardness = hardness
         self.transparent = transparent
         self.drop = drop
+        self.tool = tool
         self.attributes = attributes
 
     @property
@@ -51,28 +69,32 @@ def load_all_blocks():
         },
         block_type=BLOCK_TYPE_SOLID,
         hardness=1,
-        drop="dirt"
+        drop="dirt",
+        tool=TOOL_SHOVEL
     ))
 
     register_block("dirt", Block(
         name="Terra",
         texture=tex_module.blocks["dirt"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=1
+        hardness=1,
+        tool=TOOL_SHOVEL
     ))
 
     register_block("rooted_dirt", Block(
         name="Terra Enraizada",
         texture=tex_module.blocks["rooted_dirt"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=1
+        hardness=1,
+        tool=TOOL_SHOVEL
     ))
 
     register_block("lato_dirt", Block(
         name="Latoterra",
         texture=tex_module.blocks["lato_dirt"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=1
+        hardness=1,
+        tool=TOOL_SHOVEL
     ))
 
     register_block("stone", Block(
@@ -80,28 +102,32 @@ def load_all_blocks():
         texture=tex_module.blocks["stone"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=3,
-        drop="cobblestone"
+        drop="cobblestone",
+        tool=TOOL_PICKAXE
     ))
 
     register_block("limestone", Block(
         name="Calcário",
         texture=tex_module.blocks["limestone"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=2.5
+        hardness=2.5,
+        tool=TOOL_PICKAXE
     ))
 
     register_block("cobblestone", Block(
         name="Pedregulho",
         texture=tex_module.blocks["cobblestone"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=3
+        hardness=3,
+        tool=TOOL_PICKAXE
     ))
 
     register_block("wood", Block(
         name="Madeira",
         texture=tex_module.blocks["wood"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=2
+        hardness=2,
+        tool=TOOL_AXE
     ))
 
     register_block("water_flow", Block(
@@ -146,9 +172,10 @@ def load_all_blocks():
         name="Folhas de Carvalho",
         texture=tex_module.blocks["oak_leaves"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=1,
+        hardness=0.4,
         transparent=True,
-        drop=None
+        drop=None,
+        tool=TOOL_HOE
     ))
 
     register_block("ice", Block(
@@ -156,21 +183,24 @@ def load_all_blocks():
         texture=tex_module.blocks["ice"],
         block_type=BLOCK_TYPE_SOLID,
         hardness=2,
-        drop=None
+        drop=None,
+        tool=TOOL_PICKAXE
     ))
     
     register_block("deepslate", Block(
         name="Ardósia Profunda",
         texture=tex_module.blocks["deepslate"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=2
+        hardness=2,
+        tool=TOOL_PICKAXE
     ))
 
     register_block("obsidian", Block(
         name="Obsidiana",
         texture=tex_module.blocks["obsidian"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=8
+        hardness=8,
+        tool=TOOL_PICKAXE
     ))
 
     register_block("glass", Block(
@@ -190,7 +220,9 @@ def load_all_blocks():
             "side": tex_module.blocks["crafting_table_side"]
         },
         block_type=BLOCK_TYPE_INTERACTIVE,
-        hardness=2
+        hardness=2,
+        tool=TOOL_AXE,
+        opens="crafting"
     ))
 
     register_block("oak_log", Block(
@@ -201,33 +233,40 @@ def load_all_blocks():
             "side": tex_module.blocks["oak_log"],
         },
         block_type=BLOCK_TYPE_SOLID,
-        hardness=2
+        hardness=2,
+        tool=TOOL_AXE
     ))
 
     register_block("coal_ore", Block(
         name="Minério de Carvão",
         texture=tex_module.blocks["coal_block"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=3
+        hardness=3,
+        drop="coal",
+        tool=TOOL_PICKAXE
     ))
 
     register_block("iron_ore", Block(
         name="Minério de Ferro",
         texture=tex_module.blocks["iron_block"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=4
+        hardness=4,
+        tool=TOOL_PICKAXE
     ))
 
     register_block("gold_ore", Block(
         name="Minério de Ouro",
         texture=tex_module.blocks["gold_block"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=5
+        hardness=5,
+        tool=TOOL_PICKAXE
     ))
 
     register_block("diamond_ore", Block(
         name="Minério de Diamante",
         texture=tex_module.blocks["diamond_block"],
         block_type=BLOCK_TYPE_SOLID,
-        hardness=7
+        hardness=7,
+        drop="diamond",
+        tool=TOOL_PICKAXE
     ))

@@ -3,7 +3,9 @@ from game.core.physics import (
     PLAYER_HEIGHT,
     PLAYER_SNEAK_HEIGHT,
     PLAYER_WIDTH,
+    FallTracker,
     block_overlaps_player,
+    fall_damage,
     collides,
     move_and_collide,
 )
@@ -107,6 +109,45 @@ class MoveAndCollideTest(unittest.TestCase):
     def test_sneaking_walks_freely_on_solid_ground(self):
         pos, _ = _move(self.START, (2, 0, 0), _floor(), stop_at_edges=True)
         self.assertAlmostEqual(pos[0], 2)
+
+class FallDamageTest(unittest.TestCase):
+    def test_short_falls_are_safe(self):
+        self.assertEqual(fall_damage(1.25), 0)
+        self.assertEqual(fall_damage(3.0), 0)
+
+    def test_each_extra_block_hurts(self):
+        self.assertEqual(fall_damage(4.0), 1)
+        self.assertEqual(fall_damage(4.2), 2)
+        self.assertEqual(fall_damage(10.0), 7)
+
+    def _fall(self, tracker, heights, in_liquid=False):
+        """Sobe/cai passando pelas alturas e pousa na última. Retorna o dano."""
+        for y in heights[:-1]:
+            self.assertEqual(tracker.update(y, grounded=False, in_liquid=in_liquid), 0)
+        return tracker.update(heights[-1], grounded=True)
+
+    def test_tracks_highest_point(self):
+        tracker = FallTracker()
+        tracker.update(10.0, grounded=True)
+        # Pula de uma torre: sobe 1.25 e cai até y = 2
+        self.assertEqual(self._fall(tracker, [10.5, 11.25, 8.0, 4.0, 2.0]), 7)
+
+    def test_jumping_on_flat_ground_is_safe(self):
+        tracker = FallTracker()
+        tracker.update(1.0, grounded=True)
+        self.assertEqual(self._fall(tracker, [1.6, 2.25, 1.5, 1.0]), 0)
+
+    def test_water_cancels_fall(self):
+        tracker = FallTracker()
+        tracker.update(20.0, grounded=True)
+        tracker.update(10.0, grounded=False)
+        tracker.update(3.0, grounded=False, in_liquid=True)
+        self.assertEqual(tracker.update(2.0, grounded=True), 0)
+
+    def test_standing_still_never_hurts(self):
+        tracker = FallTracker()
+        for _ in range(10):
+            self.assertEqual(tracker.update(5.0, grounded=True), 0)
 
 if __name__ == "__main__":
     unittest.main()

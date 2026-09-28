@@ -119,3 +119,35 @@ def move_and_collide(pos, delta, width: float, height: float, is_solid, stop_at_
                 hit[axis] = True
 
     return pos, hit
+
+# Quedas de até 3 blocos não machucam; cada bloco a mais tira 1 de vida
+SAFE_FALL_DISTANCE = 3.0
+
+def fall_damage(distance: float) -> int:
+    """Dano de uma queda de `distance` blocos."""
+    return max(0, math.ceil(distance - SAFE_FALL_DISTANCE - _EPS))
+
+class FallTracker:
+    """
+    Mede a altura de cada queda: guarda o ponto mais alto desde que o jogador
+    saiu do chão e calcula o dano ao pousar. Cair na água cancela a queda.
+    """
+
+    def __init__(self):
+        self.peak_y = None
+
+    def update(self, y: float, grounded: bool, in_liquid: bool = False) -> int:
+        """Chame a cada frame depois do movimento. Retorna o dano do pouso (0 se não pousou)."""
+        if in_liquid:
+            self.peak_y = y
+            return 0
+        if grounded:
+            damage = fall_damage(self.peak_y - y) if self.peak_y is not None else 0
+            self.peak_y = y
+            return damage
+        if self.peak_y is None or y > self.peak_y:
+            self.peak_y = y
+        return 0
+
+    def reset(self):
+        self.peak_y = None

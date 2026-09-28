@@ -14,13 +14,17 @@ from game.core.physics import block_overlaps_player
 from game.core.state import State, game
 from game.core.modes import get_mode
 from game.core.world import create_world, clear_world, break_block, place_block, get_block_at, set_light_level
+from game.core.container import PlayerInventory
+from game.core.mining import MiningProgress
 from game.graphics.lighting import DayNightLighting
 from game.graphics.particles import spawn_particles
-from game.inventory import Hotbar, InventoryScreen
+from game.graphics.breaking import BreakingOverlay
+from game.inventory import Hotbar, InventoryScreen, CraftingTableScreen
+from game.drops import spawn_drop, clear_drops, THROW_PICKUP_DELAY
 from game.textures import load_all_textures
-from game.items import load_all_items
+from game.items import load_all_items, get_item, max_stack_for
 from game.entities import load_all_entities
-from game.blocks import load_all_blocks
+from game.blocks import load_all_blocks, get_block
 from game.hud import HUD
 from game.sounds import play_break_block, play_place_block
 import game.textures as textures
@@ -52,10 +56,25 @@ cross = Sprite(
     enabled=False,
 )
 
+def _drop_from_player(item_id: str, count: int):
+    """Joga itens para a frente do jogador (Q, ou clicando fora de uma tela)."""
+    player = game.player
+    if player is None:
+        return
+    forward = camera.forward
+    start = camera.world_position + forward * 0.3 + Vec3(0, -0.3, 0)
+    velocity = forward * 5 + Vec3(0, 1.5, 0)
+    spawn_drop(item_id, count, start, velocity, pickup_delay=THROW_PICKUP_DELAY)
+
 # A UI do jogador é criada uma única vez e reaproveitada entre partidas/respawns
-hotbar = Hotbar(enabled=False)
-inventory_screen = InventoryScreen()
+inventory = PlayerInventory(stack_limit=max_stack_for)
+hotbar = Hotbar(inventory, enabled=False)
+inventory_screen = InventoryScreen(inventory, on_drop=_drop_from_player)
+crafting_screen = CraftingTableScreen(inventory, on_drop=_drop_from_player)
 hud = HUD()
+
+mining = MiningProgress()
+breaking_overlay = BreakingOverlay()
 
 MENU_BACKGROUND = window.color
 lighting = DayNightLighting(set_light_level)
@@ -72,7 +91,9 @@ def _set_game_ui_visible(visible: bool):
         hud.show(show_vitals=game.mode.uses_vitals)
     else:
         hud.hide()
-        inventory_screen.enabled = False
+        if game.player:
+            game.player.close_screen(resume=False)
+        _stop_mining()
 
 def _spawn_player():
     game.player = PlayerController(hotbar=hotbar, inventory_screen=inventory_screen, mode=game.mode)
@@ -90,31 +111,86 @@ def _destroy_player():
         game.player = None
     hud.attach_player(None)
 
-def _try_break_block():
-    """Quebra o bloco apontado pelo crosshair (click esquerdo)."""
+def _target_block():
+    """Bloco apontado pelo crosshair: (posição, hit do raycast) ou None."""
     hit = raycast(camera.world_position, camera.forward, distance=REACH, ignore=[game.player])
     if not hit.hit:
-        return
+        return None
 
     # Posição do bloco atingido = ponto de impacto recuado pela normal
     bx = round(hit.world_point.x - hit.world_normal.x * 0.5)
     by = round(hit.world_point.y - hit.world_normal.y * 0.5)
     bz = round(hit.world_point.z - hit.world_normal.z * 0.5)
+    if get_block_at((bx, by, bz)) is None:
+        return None
+    return (bx, by, bz), hit
 
-    block_id = get_block_at((bx, by, bz))
-    if break_block((bx, by, bz)):
-        game.mode.on_block_broken(block_id, hotbar)
-        play_break_block()
-        # Partículas de quebra no ponto de impacto
-        spawn_particles(
-            position=hit.world_point,
-            count=8,
-            color=color.brown,
-            scale=0.08,
-            spread=0.3,
-            lifetime=0.5,
-            gravity=True,
-        )
+def _break_block_at(pos: tuple, hit):
+    """Quebra o bloco em `pos`, soltando os drops do modo no chão."""
+    block_id = get_block_at(pos)
+    if not break_block(pos):
+        return
+    for item_id, count in game.mode.block_drops(block_id):
+        spawn_drop(item_id, count, Vec3(pos[0], pos[1] - 0.125, pos[2]))
+    play_break_block()
+    # Partículas de quebra no ponto de impacto
+    spawn_particles(
+        position=hit.world_point,
+        count=8,
+        color=color.brown,
+        scale=0.08,
+        spread=0.3,
+        lifetime=0.5,
+        gravity=True,
+    )
+
+def _stop_mining():
+    mining.reset()
+    breaking_overlay.hide()
+
+def _update_mining():
+    """Segurando o clique esquerdo, quebra o bloco apontado aos poucos (tempo = dureza ÷ ferramenta)."""
+    player = game.player
+    if not game.is_(State.PLAYING) or player is None or player.inventory_enabled or not held_keys["left mouse"]:
+        _stop_mining()
+        return
+
+    target = _target_block()
+    if target is None:
+        _stop_mining()
+        return
+
+    pos, hit = target
+    block = get_block(get_block_at(pos))
+    duration = game.mode.break_time(block, get_item(hotbar.selected_item))
+    if mining.tick(time.dt, pos, duration):
+        breaking_overlay.hide()
+        _break_block_at(pos, hit)
+    elif mining.target == pos:
+        breaking_overlay.show(pos, mining.progress)
+
+def _drop_selected(whole_stack: bool):
+    """Q joga um item do slot selecionado no chão (Ctrl+Q: a pilha toda)."""
+    stack = hotbar.take_selected(whole_stack)
+    if stack:
+        _drop_from_player(stack.id, stack.count)
+
+def _spill_inventory(position):
+    """Espalha o inventário inteiro no chão (ao morrer no Survival)."""
+    for stack in inventory.drain_all():
+        spawn_drop(stack.id, stack.count, position + Vec3(0, 0.5, 0))
+
+def _try_use_block() -> bool:
+    """Clique direito num bloco interativo (mesa de trabalho). Retorna True se abriu algo."""
+    target = _target_block()
+    player = game.player
+    if target is None or player.sneaking:
+        return False
+    block = get_block(get_block_at(target[0]))
+    if block and block.attributes.get("opens") == "crafting":
+        player.open_screen(crafting_screen)
+        return True
+    return False
 
 def _try_place_block():
     """Coloca o bloco selecionado na hotbar adjacente ao bloco apontado (click direito)."""
@@ -188,6 +264,11 @@ def _enter_paused(previous):
     lighting.enabled = False  # o tempo para enquanto pausado
 
 def _enter_dead(previous):
+    if game.player:
+        # Fecha a tela antes: o cursor e a grade de crafting voltam para o inventário
+        game.player.close_screen(resume=False)
+        if game.mode.drops_items:
+            _spill_inventory(game.player.position)
     _set_game_ui_visible(False)
     mouse.locked = False
     ui.show_death_screen()
@@ -199,9 +280,11 @@ def _exit_dead(next_state):
 def _enter_menu(previous):
     """Sai da partida: remove jogador e mundo e volta ao menu principal."""
     ui.set_settings_visible(False)
-    _destroy_player()
     _set_game_ui_visible(False)
+    _destroy_player()
+    clear_drops()
     clear_world()
+    inventory.drain_all()
 
     lighting.enabled = False
     lighting.set_visible(False)
@@ -233,7 +316,7 @@ def input(key):
 
     if key == "escape":
         if player.inventory_enabled:
-            player.toggle_inventory()
+            player.close_screen()
             cross.enabled = True
         else:
             game.change(State.PAUSED)
@@ -249,11 +332,16 @@ def input(key):
     if player.inventory_enabled:
         return
 
-    if key == "left mouse down":
-        _try_break_block()
+    # Quebrar blocos (segurando o clique esquerdo) fica em update()
 
-    elif key == "right mouse down":
-        _try_place_block()
+    if key == "right mouse down":
+        if _try_use_block():
+            cross.enabled = False
+        else:
+            _try_place_block()
+
+    elif key == "q":
+        _drop_selected(whole_stack=bool(held_keys["control"] or held_keys["left control"]))
 
     # Scroll da hotbar
     elif key == "scroll up":
@@ -265,5 +353,8 @@ def input(key):
     # Atalhos numéricos 1-9 para selecionar slot da hotbar
     elif len(key) == 1 and key in "123456789":
         hotbar.select(int(key) - 1)
+
+def update():
+    _update_mining()
 
 app.run()

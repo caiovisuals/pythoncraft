@@ -1,6 +1,7 @@
 from ursina import *
 from game.core.vitals import Vitals
 from game.core.physics import (
+    FallTracker,
     PLAYER_WIDTH,
     PLAYER_HEIGHT,
     PLAYER_SNEAK_HEIGHT,
@@ -9,7 +10,8 @@ from game.core.physics import (
     collides,
     move_and_collide,
 )
-from game.core.world import is_solid_at
+from game.core.world import is_liquid_at, is_solid_at
+from game.sounds import play_hit
 
 MAX_PHYSICS_DT = 1 / 30
 
@@ -42,11 +44,12 @@ class PlayerController(Entity):
         self.sneaking = False
 
         self.vitals = Vitals(max_health=20, max_hunger=20)
+        self.fall_tracker = FallTracker()
         self.mode = mode
 
         self.hotbar = hotbar
         self.inventory_screen = inventory_screen
-        self.inventory_enabled = False
+        self.screen = None
 
         self.on_death_callback = None
 
@@ -61,15 +64,36 @@ class PlayerController(Entity):
     def hunger(self) -> int:
         return self.vitals.hunger
 
-    def toggle_inventory(self):
-        """Abre ou fecha o inventário"""
-        self.inventory_enabled = not self.inventory_enabled
-        if self.inventory_enabled:
-            self.inventory_screen.sync_hotbar(self.hotbar.stacks)
-        self.inventory_screen.enabled = self.inventory_enabled
+    @property
+    def inventory_enabled(self) -> bool:
+        """True enquanto alguma tela (inventário, mesa de trabalho...) está aberta."""
+        return self.screen is not None
 
-        self.enabled = not self.inventory_enabled
-        mouse.locked = not self.inventory_enabled
+    def open_screen(self, screen):
+        """Abre uma tela de contêiner: o jogador para e o mouse fica livre."""
+        if self.screen:
+            self.close_screen()
+        self.screen = screen
+        screen.open()
+        self.enabled = False
+        mouse.locked = False
+
+    def close_screen(self, resume: bool = True):
+        """Fecha a tela aberta. Com resume=False o jogador continua parado (ex.: ao morrer)."""
+        if not self.screen:
+            return
+        self.screen.close()
+        self.screen = None
+        if resume:
+            self.enabled = True
+            mouse.locked = True
+
+    def toggle_inventory(self):
+        """Abre o inventário, ou fecha a tela que estiver aberta"""
+        if self.screen:
+            self.close_screen()
+        else:
+            self.open_screen(self.inventory_screen)
 
     def handle_input(self, key):
         """Função para gerenciar inputs do jogador"""
@@ -79,7 +103,10 @@ class PlayerController(Entity):
 
     def take_damage(self, amount: int):
         """Aplica dano ao jogador (ignorado no Criativo)"""
+        before = self.vitals.health
         self.mode.apply_damage(self.vitals, amount)
+        if self.vitals.health < before:
+            play_hit()
         if self.vitals.is_dead:
             self.on_death()
 
@@ -138,18 +165,33 @@ class PlayerController(Entity):
         else:
             self.grounded = False
 
+        damage = self.fall_tracker.update(self.y, self.grounded, self._in_liquid())
+        if damage:
+            self.take_damage(damage)
+
+    def _in_liquid(self) -> bool:
+        """True se os pés ou o corpo estão dentro de um líquido."""
+        x, z = round(self.x), round(self.z)
+        feet = floor(self.y + 0.5 + 0.01)
+        body = floor(self.y + 0.5 + self.height / 2)
+        return is_liquid_at((x, feet, z)) or is_liquid_at((x, body, z))
+
     def _update_camera_height(self, dt: float):
         """Desce/sobe a câmera suavemente ao agachar/levantar."""
         target = PLAYER_SNEAK_EYE_HEIGHT if self.sneaking else PLAYER_EYE_HEIGHT
         self.camera_pivot.y = lerp(self.camera_pivot.y, target, min(1, dt * 15))
 
     def update(self):
+        if self.vitals.is_dead:
+            return
         real_dt = time.dt
         dt = min(real_dt, MAX_PHYSICS_DT)
 
         self._update_look()
         self._update_sneak()
         self._update_movement(dt)
+        if self.vitals.is_dead:
+            return
         self._update_camera_height(dt)
 
         self.mode.tick_vitals(self.vitals, real_dt)

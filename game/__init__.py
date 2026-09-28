@@ -10,6 +10,7 @@ __all__ = [
     "items",
     "entities",
     "blocks",
+    "drops",
 ]
 
 __version__ = "0.1.0"

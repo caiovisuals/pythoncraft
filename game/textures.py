@@ -1,3 +1,5 @@
+import math
+import random
 from pathlib import Path
 from PIL import Image
 from ursina import load_texture, Texture
@@ -10,6 +12,9 @@ blocks: dict = {}
 entities: dict = {}
 items: dict = {}
 gui: dict = {}
+breaking: list = []   # estágios da rachadura ao quebrar um bloco (0 = começo)
+
+BREAKING_STAGES = 10
 
 # Nomes alternativos para texturas animadas/variações
 BLOCK_ALIASES = {
@@ -36,8 +41,42 @@ def _crop(path: Path, box: tuple):
     image = Image.open(path).convert("RGBA").crop(box)
     return Texture(image)
 
+def _crack_pixels(size: int, seed: int) -> list:
+    """
+    Pixels das rachaduras em ordem de crescimento: várias linhas tortas saindo
+    do centro, avançando um passo de cada vez em todas elas.
+    """
+    rng = random.Random(seed)
+    walks = []
+    for _ in range(7):
+        walks.append([size / 2 + rng.uniform(-2, 2), size / 2 + rng.uniform(-2, 2), rng.uniform(0, 2 * math.pi)])
+
+    pixels, seen = [], set()
+    for _ in range(size):
+        for walk in walks:
+            walk[2] += rng.uniform(-0.7, 0.7)
+            walk[0] += math.cos(walk[2])
+            walk[1] += math.sin(walk[2])
+            p = (int(walk[0]), int(walk[1]))
+            if 0 <= p[0] < size and 0 <= p[1] < size and p not in seen:
+                seen.add(p)
+                pixels.append(p)
+    return pixels
+
+def _make_breaking_stages(stages: int = BREAKING_STAGES, size: int = 16, seed: int = 7) -> list:
+    """Gera as texturas de rachadura (não há imagens delas em assets/)."""
+    pixels = _crack_pixels(size, seed)
+    result = []
+    for stage in range(stages):
+        image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        visible = pixels[: max(1, len(pixels) * (stage + 1) // stages)]
+        for p in visible:
+            image.putpixel(p, (20, 20, 20, 200))
+        result.append(Texture(image))
+    return result
+
 def load_all_textures():
-    global player, blocks, entities, items, gui
+    global player, blocks, entities, items, gui, breaking
 
     player = {
         "player": _load(TEXTURES_DIR / "entities/player/player_male.png"),
@@ -63,6 +102,7 @@ def load_all_textures():
         "protection": _load(gui_dir / "protection.png"),
         "block_background": _load(gui_dir / "block_background.png"),
         "survival_inventory": _load(gui_dir / "container/survival-inventory.png"),
+        "crafter": _load(gui_dir / "container/crafter.png"),
         "slot": _load(sprites_dir / "slot.png"),
         "slot_highlight_back": _load(sprites_dir / "slot_highlight_back.png"),
         "slot_highlight_front": _load(sprites_dir / "slot_highlight_front.png"),
@@ -75,3 +115,5 @@ def load_all_textures():
         "heart_full": _crop(gui_dir / "heart.png", (9, 0, 18, 9)),
         "heart_half": _crop(gui_dir / "heart.png", (18, 0, 27, 9)),
     }
+
+    breaking = _make_breaking_stages()

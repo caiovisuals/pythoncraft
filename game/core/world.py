@@ -1,5 +1,5 @@
 from ursina import *
-from game.blocks import get_block, BLOCK_TYPE_SOLID, BLOCK_TYPE_INTERACTIVE
+from game.blocks import get_block, BLOCK_TYPE_SOLID, BLOCK_TYPE_INTERACTIVE, BLOCK_TYPE_LIQUID
 from perlin_noise import PerlinNoise
 import random
 
@@ -381,6 +381,9 @@ def set_light_level(level: float):
         for mesh_entity in chunk.children:
             mesh_entity.color = light
 
+def get_light_level() -> float:
+    return _light_level
+
 def get_block_at(pos: tuple) -> str | None:
     """ID do bloco na posição (x, y, z), ou None se estiver vazia."""
     return placed_blocks.get((int(pos[0]), int(pos[1]), int(pos[2])))
@@ -392,6 +395,12 @@ def is_solid_at(pos: tuple) -> bool:
         return False
     block = get_block(block_id)
     return block is not None and block.type in (BLOCK_TYPE_SOLID, BLOCK_TYPE_INTERACTIVE)
+
+def is_liquid_at(pos: tuple) -> bool:
+    """True se o bloco na posição (x, y, z) inteira é um líquido (água, lava...)."""
+    block_id = placed_blocks.get(pos)
+    block = get_block(block_id) if block_id else None
+    return block is not None and block.type == BLOCK_TYPE_LIQUID
 
 def break_block(pos: tuple) -> bool:
     """

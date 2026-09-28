@@ -26,11 +26,22 @@ class RegistryTest(unittest.TestCase):
         known = set(blocks.BLOCKS) | set(items.ITEMS)
         for name, recipe in RECIPES.items():
             with self.subTest(recipe=name):
-                self.assertIn(recipe["result"], known)
-                for row in recipe["pattern"]:
-                    for cell in row:
-                        if cell is not None:
-                            self.assertIn(cell, known)
+                self.assertIn(recipe.result, known)
+                cells = recipe.ingredients or [cell for row in recipe.shape for cell in row if cell]
+                for cell in cells:
+                    self.assertIn(cell, known)
+
+    def test_block_drops_are_registered(self):
+        known = set(blocks.BLOCKS) | set(items.ITEMS)
+        for block_id, block in blocks.BLOCKS.items():
+            if block.drop_id:
+                with self.subTest(block=block_id):
+                    self.assertIn(block.drop_id, known)
+
+    def test_tools_do_not_stack(self):
+        self.assertEqual(items.max_stack_for("iron_pickaxe"), 1)
+        self.assertEqual(items.max_stack_for("stick"), 64)
+        self.assertEqual(items.max_stack_for("dirt"), 64)
 
 class TextureFilesTest(unittest.TestCase):
     """Garante que todo nome de textura usado nos registros existe em assets/."""

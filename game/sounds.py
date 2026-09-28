@@ -30,6 +30,8 @@ def play_sound(sound_file: Optional[str], volume=1.0, pitch_range=(1.0, 1.0)):
     Toca um som com volume e pitch opcional. Ignora sons ausentes.
     pitch_range: tuple(min_pitch, max_pitch) para variação aleatória.
     """
+    if sound_file is None:
+        return None
     pitch = random.uniform(pitch_range[0], pitch_range[1])
     return Audio(sound_file, autoplay=True, auto_destroy=True, volume=volume, pitch=pitch)
 

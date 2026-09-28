@@ -1,1 +1,1 @@
-__all__ = ["player", "world", "state", "vitals", "physics", "modes", "daynight"]
+__all__ = ["player", "world", "state", "vitals", "physics", "modes", "daynight", "container", "mining"]

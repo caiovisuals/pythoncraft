@@ -30,7 +30,7 @@ O Pythoncraft é um sandbox voxel em primeira pessoa construído sobre a **[Ursi
 A arquitetura segue três ideias principais:
 
 1. **`main.py` é o orquestrador.** Ele cria a aplicação, carrega os registros, instancia a UI uma única vez e reage às trocas de estado da partida. A lógica de jogo propriamente dita fica nos módulos de `game/`.
-2. **Lógica pura separada da engine.** Estado da partida (`state.py`), física (`physics.py`), vida/fome (`vitals.py`), ciclo dia/noite (`daynight.py`), regras dos modos (`modes.py`) e receitas (`craft.py`) não dependem de entidades da Ursina e por isso são testáveis com `unittest`. As classes que tocam a engine (`PlayerController`, `DayNightLighting`, `Hotbar`...) apenas aplicam o resultado dessa lógica na cena.
+2. **Lógica pura separada da engine.** Estado da partida (`state.py`), física e dano de queda (`physics.py`), vida/fome (`vitals.py`), ciclo dia/noite (`daynight.py`), regras dos modos (`modes.py`), inventário e cliques (`container.py`), tempo de mineração (`mining.py`) e receitas (`craft.py`) não dependem de entidades da Ursina e por isso são testáveis com `unittest`. As classes que tocam a engine (`PlayerController`, `DayNightLighting`, `Hotbar`...) apenas aplicam o resultado dessa lógica na cena.
 3. **Registros globais por ID.** Blocos, itens, entidades e texturas vivem em dicionários de módulo (`BLOCKS`, `ITEMS`, `ENTITIES`, `textures.blocks`...) indexados por uma string (`"stone"`, `"apple"`). O resto do código só troca IDs; os objetos são obtidos com `get_block`, `get_item`, `get_entity`.
 
 ## Inicialização (`main.py`)
@@ -42,7 +42,7 @@ A ordem importa, porque a Ursina precisa existir antes de qualquer `Entity` ser 
 3. Configuração da janela (`window.*`).
 4. Carregamento dos registros, nesta ordem obrigatória:
    `load_all_textures()` → `load_all_items()` → `load_all_entities()` → `load_all_blocks()`.
-5. Criação única da UI da partida: crosshair, `Hotbar`, `InventoryScreen`, `HUD` e `DayNightLighting`. Esses objetos são reaproveitados entre partidas e respawns — apenas escondidos/mostrados.
+5. Criação única da UI da partida: crosshair, `PlayerInventory` (o modelo), `Hotbar`, `InventoryScreen`, `CraftingTableScreen`, `HUD`, `BreakingOverlay` e `DayNightLighting`. Esses objetos são reaproveitados entre partidas e respawns — apenas escondidos/mostrados.
 6. Registro dos callbacks da máquina de estados (`game.on_enter(...)` / `game.on_exit(...)`).
 7. `ui.build_main_menu(start_game)` e `ui.build_death_screen(_respawn, quit_to_menu)`.
 8. `app.run()`. A partir daí a Ursina chama `input(key)` do `main.py` e o `update()` de cada entidade a cada frame.
@@ -77,8 +77,8 @@ stateDiagram-v2
 | `_enter_loading` | esconde o menu, gera o mundo (`create_world(size=28, max_height=8)`), define o spawn, prepara a hotbar do modo e liga o céu às 0.3 (manhã) |
 | `_enter_playing` | cria/recria/reativa o jogador conforme o estado anterior; volta a correr o relógio do dia |
 | `_enter_paused` | mostra o painel de configurações, desativa o jogador, solta o mouse e congela o tempo |
-| `_enter_dead` / `_exit_dead` | mostra/esconde a tela de morte |
-| `_enter_menu` | destrói jogador e mundo, esconde a UI da partida e restaura o fundo do menu |
+| `_enter_dead` / `_exit_dead` | fecha a tela aberta, espalha o inventário no chão (se o modo tiver drops) e mostra/esconde a tela de morte |
+| `_enter_menu` | destrói jogador, itens no chão e mundo, esvazia o inventário, esconde a UI da partida e restaura o fundo do menu |
 
 ## Modos de jogo
 
@@ -89,10 +89,12 @@ stateDiagram-v2
 | `starting_hotbar` | — | 9 blocos | vazia |
 | `block_to_place(hotbar)` | item selecionado, se for bloco | herdado | herdado |
 | `on_block_placed(hotbar)` | nada | nada (infinito) | consome 1 do slot |
-| `on_block_broken(id, hotbar)` | nada | nada (sem drops) | adiciona `block.drop_id` |
+| `block_drops(id)` | `[(drop_id, 1)]` se `drops_items` | `[]` (sem drops) | `[(block.drop_id, 1)]` |
+| `break_time(block, tool)` | dureza ÷ ferramenta (`mining.break_time`) | `0` (instantâneo) | herdado |
+| `drops_items` | — | `False` | `True` (drops e inventário espalhado ao morrer) |
 | `tick_vitals` / `apply_damage` | só se `uses_vitals` | desligado | ligado |
 
-Os modos disponíveis ficam em `MODES` e o menu principal cria um botão para cada um automaticamente. A hotbar é tratada por interface ("duck typing"): basta ter `selected_item`, `add_item`, `consume_selected` e `set_items` — é assim que os testes usam um `FakeHotbar`.
+Os modos disponíveis ficam em `MODES` e o menu principal cria um botão para cada um automaticamente. A hotbar é tratada por interface ("duck typing"): basta ter `selected_item`, `consume_selected` e `set_items` — é assim que os testes usam um `FakeHotbar`.
 
 ## Mundo e Armazenamento
 
@@ -162,13 +164,16 @@ No `main.py`, o ponto de impacto do raycast é convertido em coordenada de bloco
 
 1. `_update_look` — gira o corpo em Y e o pivô da câmera em X (limitado a ±90°) pela velocidade do mouse.
 2. `_update_sneak` — Shift agacha (altura 1.5); só levanta se houver espaço acima.
-3. `_update_movement` — WASD no plano, pulo com `v = √(2·g·h)` para alcançar `jump_height = 1.25`, gravidade de 32 blocos/s² com velocidade terminal de 60 blocos/s, e resolve colisão com `move_and_collide`.
+3. `_update_movement` — WASD no plano, pulo com `v = √(2·g·h)` para alcançar `jump_height = 1.25`, gravidade de 32 blocos/s² com velocidade terminal de 60 blocos/s, e resolve colisão com `move_and_collide`. No fim do movimento, o `FallTracker` (em `physics.py`) mede a queda e aplica o dano ao pousar.
 4. `_update_camera_height` — interpola suavemente a altura dos olhos ao agachar/levantar.
 5. `mode.tick_vitals` — avança a fome; se a vida zerar, chama `on_death` → `on_death_callback` → `game.change(State.DEAD)`.
 
+`take_damage` passa o dano pelo modo e toca `play_hit` quando a vida realmente cai.
 O passo de física é limitado a `MAX_PHYSICS_DT = 1/30` s para evitar saltos grandes em quedas de FPS; a fome usa o `dt` real.
 
 Ao ser desativado (inventário, pausa, morte) o jogador solta o mouse e desacopla a câmera; ao ser reativado ele a reacopla. `unstuck()` sobe o jogador até sair de dentro de blocos (usado no spawn).
+
+Telas de contêiner são abertas com `open_screen(screen)` e fechadas com `close_screen(resume=True)`; `inventory_enabled` é `True` enquanto houver uma aberta. `toggle_inventory()` (tecla `E`) abre o inventário ou fecha a tela atual.
 
 ### Física (`game/core/physics.py`)
 
@@ -180,6 +185,7 @@ Colisão estilo Minecraft, sem usar os colisores da engine:
 - Movimentos grandes são divididos em passos de até `_MAX_STEP = 0.45` para não atravessar blocos (tunneling).
 - Com `stop_at_edges=True` (agachado e no chão), `_limit_at_edge` reduz o deslocamento horizontal enquanto ele deixaria o jogador sem chão — o jogador não cai de bordas.
 - `block_overlaps_player` impede colocar um bloco dentro do próprio jogador.
+- **Dano de queda**: `fall_damage(d) = ⌈d − 3⌉` (quedas de até 3 blocos não machucam). O `FallTracker` guarda o ponto mais alto desde que o jogador saiu do chão e calcula o dano ao pousar; entrar num líquido zera a queda.
 
 ## Vida e fome
 
@@ -216,18 +222,23 @@ Como os outros módulos acessam `textures.blocks[...]` **no momento do registro*
 
 ### Blocos (`game/blocks.py`)
 
-`Block(name, texture | textures, block_type, hardness, transparent, drop, **attributes)`:
+`Block(name, texture | textures, block_type, hardness, transparent, drop, tool, **attributes)`:
 
 - `textures` = `{"top", "bottom", "side"}` (uma única `texture` preenche as três).
 - `block_type`: `solid`, `interactive` (bloqueiam o jogador), `liquid`, `effect` (não bloqueiam).
 - `transparent`: não esconde as faces dos vizinhos (vidro, folhas, água).
-- `drop`: `DROP_SELF` (padrão), outro ID (`grass` → `dirt`, `stone` → `cobblestone`) ou `None` (vidro, gelo, folhas). A propriedade `drop_id` resolve isso.
+- `drop`: `DROP_SELF` (padrão), outro ID (`grass` → `dirt`, `stone` → `cobblestone`, `coal_ore` → `coal`) ou `None` (vidro, gelo, folhas). A propriedade `drop_id` resolve isso.
+- `hardness`: tempo de quebra (veja [Mineração](#mineração-e-itens-no-chão)).
+- `tool`: ferramenta que acelera a quebra (`TOOL_PICKAXE`, `TOOL_AXE`, `TOOL_SHOVEL`, `TOOL_HOE`) ou `None`.
+- Atributos livres: `opens="crafting"` faz o clique direito abrir a mesa de trabalho.
 
 `register_block(id, block)` grava em `BLOCKS` e define `block.id`.
 
 ### Itens (`game/items.py`)
 
 `Item(name, texture, item_type, **attributes)`, com tipos `tool`, `food`, `block`, `utility`. Atributos livres guardam dados específicos (`hunger=4`, `damage=7`, `durability=1560`). `register_item` recusa IDs duplicados.
+
+Picaretas, machados, pás e enxadas são gerados por `_register_tools()` a partir de `TOOL_TIERS` (material → nome, multiplicador de mineração, durabilidade) e `TOOL_TYPES`. `max_stack_for(id)` diz o tamanho máximo da pilha: itens com `durability` não empilham, o resto vai até 64.
 
 ### Entidades (`game/entities.py`)
 
@@ -247,11 +258,18 @@ Toda a UI é filha de `camera.ui`. As texturas de GUI são desenhadas em "pixels
 
 ## Crafting
 
-`game/craft.py` define `RECIPES` (padrões 3×3 de IDs ou `None`) e `check_craft(grid)`, que compara a grade célula a célula e retorna o ID do resultado ou `None`. A correspondência é **exata e posicional** (a receita não é deslocada nem espelhada). O módulo ainda não está ligado à `InventoryScreen`; os testes garantem que todo padrão bate consigo mesmo, que não há padrões duplicados e que todos os IDs usados existem nos registros.
+`game/craft.py` define `RECIPES` com dois tipos de receita (`Recipe`):
+
+- **Com formato** — `shaped("stick", ["W", "W"], {"W": "wood"}, count=4)`. O formato é recortado para o menor retângulo, então a receita pode ser feita **em qualquer posição** da grade, e também **espelhada**. Receitas de até 2×2 cabem no inventário; as maiores precisam da mesa de trabalho.
+- **Sem formato** — `shapeless("wood", ["oak_log"], count=4)`. Só importam os ingredientes, não a posição.
+
+`find_recipe(grid)` recebe uma grade de qualquer tamanho (2×2 ou 3×3) e retorna a `Recipe`; `check_craft(grid)` retorna `(resultado, quantidade)` ou `None`. As ferramentas de cada material são geradas a partir de `TOOL_MATERIALS` × `TOOL_PATTERNS`.
+
+Os testes garantem que toda receita funciona em qualquer posição e espelhada, que nenhuma receita é ambígua com outra e que todos os IDs usados existem nos registros.
 
 ## Sons e partículas
 
-- **`game/sounds.py`** — resolve os caminhos em `assets/sounds` no import (avisando se faltar arquivo) e expõe `play_break_block`, `play_place_block`, `play_step`, `play_jump`, `play_hit`, cada um com volume e uma pequena variação aleatória de pitch.
+- **`game/sounds.py`** — resolve os caminhos em `assets/sounds` no import (avisando se faltar arquivo) e expõe `play_break_block`, `play_place_block`, `play_step`, `play_jump`, `play_hit`, cada um com volume e uma pequena variação aleatória de pitch. Sons ausentes são ignorados.
 - **`game/graphics/particles.py`** — `Particle` é um quad billboard com velocidade, gravidade opcional e tempo de vida; `spawn_particles` cria um punhado com variação aleatória. Usado ao quebrar blocos.
 
 ## Loop de input
@@ -281,12 +299,14 @@ Os testes usam `unittest` e cobrem principalmente a lógica pura:
 | Arquivo | Cobre |
 |---|---|
 | `test_state.py` | fluxo completo de estados, transições inválidas, ordem dos callbacks |
-| `test_modes.py` | regras de Criativo e Survival com um `FakeHotbar` |
-| `test_physics.py` | pouso, tunneling, paredes, vãos de 1 e 2 blocos, teto, agachar e bordas |
+| `test_modes.py` | regras de Criativo e Survival com um `FakeHotbar`, drops e tempo de quebra por ferramenta |
+| `test_physics.py` | pouso, tunneling, paredes, vãos de 1 e 2 blocos, teto, agachar, bordas e dano de queda |
+| `test_container.py` | empilhar, cliques esquerdo/direito, Shift+clique, grade de crafting e "craftar tudo" |
+| `test_mining.py` | tempo de quebra por ferramenta, progresso, troca de alvo e cooldown |
 | `test_vitals.py` | decaimento da fome, dano periódico por fome, limites |
 | `test_world.py` | `is_exposed` e `chunks_to_rebuild` |
-| `test_craft.py` | consistência das receitas |
-| `test_registry.py` | IDs das receitas registrados e existência dos arquivos de textura referenciados |
+| `test_craft.py` | receitas em qualquer posição, espelhadas, sem formato, 2×2 vs 3×3 e ausência de ambiguidade |
+| `test_registry.py` | IDs das receitas e dos drops registrados, tamanho de pilha e existência dos arquivos de textura referenciados |
 
 Os registros são testados trocando os dicionários de `textures` por `defaultdict(lambda: None)`, então nenhuma textura real é carregada.
 
@@ -305,7 +325,9 @@ Ao adicionar lógica nova, prefira colocá-la em uma função/classe sem Ursina 
 1. Textura em `assets/textures/items/<id>.png`.
 2. `register_item("<id>", Item(...))` em `load_all_items()`, com os atributos necessários (`hunger`, `damage`...).
 
-**Nova receita** — adicione em `RECIPES` usando apenas IDs registrados; `test_registry.py` e `test_craft.py` validam.
+**Nova receita** — adicione em `RECIPES` com `shaped(...)` ou `shapeless(...)` usando apenas IDs registrados; `test_registry.py` e `test_craft.py` validam (inclusive que ela não conflita com outra).
+
+**Nova tela de contêiner** — crie uma subclasse de `ContainerScreen` passando a textura da GUI e adicione os slots com `add_slot(container, índice, x, y)` ou `add_crafting_grid(...)`, usando as coordenadas em pixels da textura.
 
 **Novo modo de jogo** — crie uma subclasse de `GameMode`, sobrescreva os ganchos necessários e inclua uma instância em `MODES`. O botão no menu aparece sozinho.
 
@@ -321,7 +343,7 @@ Itens que já têm estrutura no código mas ainda não estão completos — úte
 - **Blocos**: `hardness` ainda não é usado (quebra instantânea); líquidos não escoam; `crafting_table` é `interactive` mas não abre interface.
 - **Itens**: comida (`hunger`) e ferramentas (`damage`, `durability`) ainda não têm efeito; `Vitals.eat` já existe para isso.
 - **Entidades**: registradas como dados, mas sem spawn, modelo ou IA.
-- **Sons**: `play_step`, `play_jump` e `play_hit` estão prontos, mas ainda não são chamados.
+- **Sons**: `play_step` e `play_jump` estão prontos, mas ainda não são chamados; os arquivos de quebrar, colocar, passo e pulo não existem em `assets/sounds` (`play_sound` ignora sons ausentes).
 - **Idiomas**: `assets/lang/*.json` existem, mas os textos da UI e os nomes de blocos/itens ainda estão fixos em português no código.
 - **Configurações**: o painel de pausa mostra opções de exemplo (volume e sensibilidade ainda não são ajustáveis).
 

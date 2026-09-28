@@ -2,7 +2,7 @@ import unittest
 from collections import defaultdict
 
 import game.textures as textures
-from game import blocks
+from game import blocks, items
 from game.core.modes import CreativeMode, SurvivalMode
 from game.core.vitals import Vitals
 
@@ -22,14 +22,6 @@ class FakeHotbar:
     def set_items(self, items):
         self.stacks = [(item, 1) for item in items]
 
-    def add_item(self, item_id, amount=1):
-        for i, (existing, count) in enumerate(self.stacks):
-            if existing == item_id:
-                self.stacks[i] = (existing, count + amount)
-                return 0
-        self.stacks.append((item_id, amount))
-        return 0
-
     def consume_selected(self, amount=1):
         item_id, count = self.stacks[self.selected]
         if count - amount > 0:
@@ -42,8 +34,11 @@ class ModesTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         textures.blocks = defaultdict(lambda: None)
+        textures.items = defaultdict(lambda: None)
         blocks.BLOCKS.clear()
+        items.ITEMS.clear()
         blocks.load_all_blocks()
+        items.load_all_items()
 
     def test_creative_starts_with_blocks_and_never_consumes(self):
         mode, hotbar = CreativeMode(), FakeHotbar()
@@ -53,9 +48,10 @@ class ModesTest(unittest.TestCase):
         self.assertEqual(hotbar.stacks[0], ("grass", 1))
 
     def test_creative_has_no_drops(self):
-        mode, hotbar = CreativeMode(), FakeHotbar()
-        mode.on_block_broken("stone", hotbar)
-        self.assertEqual(hotbar.stacks, [])
+        self.assertEqual(CreativeMode().block_drops("stone"), [])
+
+    def test_creative_breaks_instantly(self):
+        self.assertEqual(CreativeMode().break_time(blocks.get_block("obsidian")), 0)
 
     def test_creative_ignores_damage_and_hunger(self):
         mode, vitals = CreativeMode(), Vitals()
@@ -69,13 +65,21 @@ class ModesTest(unittest.TestCase):
         self.assertIsNone(mode.block_to_place(hotbar))
 
     def test_survival_drops(self):
-        mode, hotbar = SurvivalMode(), FakeHotbar()
-        mode.on_block_broken("grass", hotbar)       # grama dropa terra
-        mode.on_block_broken("stone", hotbar)       # pedra dropa pedregulho
-        mode.on_block_broken("oak_log", hotbar)     # tronco dropa ele mesmo
-        mode.on_block_broken("oak_leaves", hotbar)  # folhas não dropam nada
-        mode.on_block_broken("dirt", hotbar)
-        self.assertEqual(hotbar.stacks, [("dirt", 2), ("cobblestone", 1), ("oak_log", 1)])
+        mode = SurvivalMode()
+        self.assertEqual(mode.block_drops("grass"), [("dirt", 1)])          # grama dropa terra
+        self.assertEqual(mode.block_drops("stone"), [("cobblestone", 1)])   # pedra dropa pedregulho
+        self.assertEqual(mode.block_drops("oak_log"), [("oak_log", 1)])     # tronco dropa ele mesmo
+        self.assertEqual(mode.block_drops("coal_ore"), [("coal", 1)])
+        self.assertEqual(mode.block_drops("oak_leaves"), [])                # folhas não dropam nada
+
+    def test_survival_break_time_uses_the_right_tool(self):
+        mode = SurvivalMode()
+        stone = blocks.get_block("stone")
+        by_hand = mode.break_time(stone)
+        self.assertGreater(by_hand, 0)
+        self.assertAlmostEqual(mode.break_time(stone, items.get_item("stone_pickaxe")), by_hand / 4)
+        # Machado não acelera pedra
+        self.assertAlmostEqual(mode.break_time(stone, items.get_item("stone_axe")), by_hand)
 
     def test_survival_placing_consumes(self):
         mode, hotbar = SurvivalMode(), FakeHotbar([("dirt", 2)])

@@ -26,6 +26,43 @@ def register_item(id: str, item: Item):
 def get_item(id: str) -> Optional[Item]:
     return ITEMS.get(id)
 
+def max_stack_for(item_id: str) -> int:
+    """Itens com durabilidade (ferramentas) não empilham; o resto empilha até 64."""
+    item = ITEMS.get(item_id)
+    if item and "durability" in item.attributes:
+        return 1
+    return 64
+
+# Materiais das ferramentas: prefixo do ID -> (nome, multiplicador de mineração, durabilidade)
+TOOL_TIERS = {
+    "wooden": ("Madeira", 2, 59),
+    "stone": ("Pedra", 4, 131),
+    "iron": ("Ferro", 6, 250),
+    "golden": ("Ouro", 12, 32),
+    "diamond": ("Diamante", 8, 1561),
+}
+
+# Tipo de ferramenta -> nome (as espadas são registradas à parte)
+TOOL_TYPES = {
+    "pickaxe": "Picareta",
+    "axe": "Machado",
+    "shovel": "Pá",
+    "hoe": "Enxada",
+}
+
+def _register_tools():
+    for prefix, (material, speed, durability) in TOOL_TIERS.items():
+        for tool_type, tool_name in TOOL_TYPES.items():
+            item_id = f"{prefix}_{tool_type}"
+            register_item(item_id, Item(
+                name=f"{tool_name} de {material}",
+                texture=tex_module.items[item_id],
+                item_type=ITEM_TYPE_TOOL,
+                tool_type=tool_type,
+                mining_speed=speed,
+                durability=durability,
+            ))
+
 def load_all_items():
     register_item("apple", Item(
         name="Maçã",
@@ -111,6 +148,18 @@ def load_all_items():
         item_type=ITEM_TYPE_UTILITY,
     ))
 
+    register_item("gold_ingot", Item(
+        name="Barra de Ouro",
+        texture=tex_module.items["gold_ingot"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
+    register_item("coal", Item(
+        name="Carvão",
+        texture=tex_module.items["coal"],
+        item_type=ITEM_TYPE_UTILITY,
+    ))
+
     register_item("diamond", Item(
         name="Diamante",
         texture=tex_module.items["diamond"],
@@ -121,6 +170,7 @@ def load_all_items():
         name="Espada de Madeira",
         texture=tex_module.items["wooden_sword"],
         item_type=ITEM_TYPE_TOOL,
+        tool_type="sword",
         damage=4,
         durability=59
     ))
@@ -129,6 +179,7 @@ def load_all_items():
         name="Espada de Pedra",
         texture=tex_module.items["stone_sword"],
         item_type=ITEM_TYPE_TOOL,
+        tool_type="sword",
         damage=5,
         durability=140
     ))
@@ -137,6 +188,7 @@ def load_all_items():
         name="Espada de Ferro",
         texture=tex_module.items["iron_sword"],
         item_type=ITEM_TYPE_TOOL,
+        tool_type="sword",
         damage=6,
         durability=350
     ))
@@ -145,6 +197,7 @@ def load_all_items():
         name="Espada de Diamante",
         texture=tex_module.items["diamond_sword"],
         item_type=ITEM_TYPE_TOOL,
+        tool_type="sword",
         damage=7,
         durability=1560
     ))
@@ -185,3 +238,5 @@ def load_all_items():
         texture=tex_module.items["saddle"],
         item_type=ITEM_TYPE_UTILITY,
     ))
+
+    _register_tools()
